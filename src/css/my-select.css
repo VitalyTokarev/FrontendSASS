@@ -1,0 +1,66 @@
+.my-select {
+    position: relative;
+    background-color: #ffffff;
+    width: 100%;
+    outline: none;
+}
+
+.my-select-options {
+    position: absolute;
+    z-index: 3;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+}
+
+.btn-arrow {
+    position: absolute;
+    display: block;
+    right: 1%;
+    top: 40%;
+    z-index: 2;
+    padding: 0.375rem 0.75rem;
+
+    box-shadow: none;
+    border: none;
+    background: inherit;
+}
+
+.bg-image-btn-up {
+    background-image: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_up.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.bg-image-btn-down {
+    background-image: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.btn-arrow:focus {
+    outline: none;
+}
+
+.my-select-input {
+    padding-right: 2rem;
+    width: inherit;
+}
+
+.my-select-input:hover {
+    cursor: default;
+}
+
+.option {
+    margin: 0;
+    padding: 0.1rem 1rem;
+    width: 100%;
+}
+
+.option:hover{
+    cursor: default;
+    background-color: #ced4da;
+}
+
+.option:focus{
+    background-color: #000000;
+}
