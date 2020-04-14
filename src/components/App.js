@@ -1,48 +1,120 @@
-import React from "react";
-import '../components/BlockInput.js';
+import React from 'react';
+import {nanoid} from 'nanoid';
+
 import BlockInput from './BlockInput'
 import BlockList from './BlockList'
 
-
-class App extends React.Component {
+export default class App extends React.Component {
     state = {
             list: [],
             editId: -1,
             removeButtonDisabled: false,
     };
 
+    componentDidMount() {
+        this.getObjectsFromServer();
+    }
+
+    async getObjectsFromServer() {
+        let response = await fetch('/Object');
+
+        if (response.ok) { 
+            let objects = await response.json();
+            this.setState({
+                list: objects
+            });    
+            return;
+        } 
+        alert("Ошибка HTTP: " + response.status);
+    }
+
+    async sendObjectToServer(object) {
+        let response = await fetch('/Object', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(object),
+        });
+        if(response.ok) {
+            return;
+        }
+        alert("Ошибка HTTP: " + response.status);
+    }
+
+    
+    async editObjectToServer(object) {
+        let response = await fetch('/Object', { 
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(object),
+        });
+        if(response.ok) {
+            return;
+        }
+        alert("Ошибка HTTP: " + response.status);
+    }
+
+    
+    async deleteObjectToServer(id) {
+        let response = await fetch('/Object', { 
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id}),
+        });
+        if(response.ok) {
+            return;
+        }
+        alert("Ошибка HTTP: " + response.status);
+    }
+
     addObject(object) {
+        object.id = nanoid();
         this.setState( prevState => ({ list :
                     [...prevState.list, {
-                        id: prevState.list.length +1,
+                        id: object.id,
                         value: object.value,
                         type: object.type,
                         fruit: object.fruit
                     }
-
                     ],
             }
         ));
+        this.sendObjectToServer(object);
     }
 
     checkEditObject = () => {
-        if(this.state.editId !== -1) {
-            return this.state.list[this.state.editId -1];
+        if (this.state.editId !== -1) {
+            const editIndex = this.state.list.findIndex(m => m.id === this.state.editId);
+            const editObject = this.state.list[editIndex];
+
+            editObject.index = editIndex+1;
+            return editObject;
         } else {
             return "";
         }
     };
 
+
     editObject(object) {
         const objectList = this.state.list;
-        objectList[this.state.editId -1].value = object.value;
-        objectList[this.state.editId -1].type = object.type;
-        objectList[this.state.editId -1].fruit = object.fruit;
+        object.id = this.state.editId;
+        const editIndex = objectList.findIndex(m => m.id === object.id)
+
+        objectList[editIndex].value = object.value;
+        objectList[editIndex].type = object.type;
+        objectList[editIndex].fruit = object.fruit;
+
         this.setState({
             list: objectList,
             editId: -1,
             removeButtonDisabled: false,
         });
+        this.editObjectToServer(object);
     }
 
     getData = object => {
@@ -53,33 +125,24 @@ class App extends React.Component {
             this.addObject(object);
         }
     };
-    removeObjectFromList(oldArr, id) {
-        let newArr = [];
-        for (let index in oldArr) {
-            if(+index !== id - 1) {
-                oldArr[index].id = newArr.length + 1;
-                newArr.push(oldArr[index]);
-            }
-        }
-
-        return newArr;
-    }
 
     removeObject = id => {
         let listObject = this.state.list;
-        listObject = this.removeObjectFromList(listObject, id);
+        const removeIndex = listObject.findIndex(m => m.id === id);
+
+        listObject.splice(removeIndex, 1);
         this.setState({list: listObject});
+        this.deleteObjectToServer(id);
     };
 
     getIdEditObjecId = id => {
-        this.setState(prevState => ({
+        this.setState({
             editId: id,
             removeButtonDisabled: true
-        }));
+        });
     };
 
     render() {
-
         const {
             editId,
             list,
@@ -103,5 +166,3 @@ class App extends React.Component {
         );
     }
 }
-
-export default App;

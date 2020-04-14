@@ -1,31 +1,38 @@
 import React from "react";
-import List from "./List";
 
-class BlockList extends React.Component {
-    render() {
-        const {
-            list,
-            removeButtonDisabled,
-            removeAction,
-            editAction
-        } = this.props;
+import ListElement from "./ListElement";
 
-        return (
-            <div className="row">
-                <div className="col-6 mx-auto">
-                    <List list={list}
-                          listClasses={"list"}
-                          removeButtonDisabled={removeButtonDisabled}
-                          removeAction={removeAction}
-                          editAction={editAction}
-                          elemValueClasses={"list-element"}
-                          btnEditClasses={"btn btn-primary list-btn-edit"}
-                          btnRemoveClasses={"btn btn-primary list-btn-remove"}
-                    />
-                </div>
+export default function BlockList(props) {
+    const {
+        list,
+        removeButtonDisabled,
+        removeAction,
+        editAction
+    } = props;
+
+    return (
+        <div className="row">
+            <div className="col-6 mx-auto">
+                    <ol className={"list"}>
+                    {list.length !== 0 ?  list.map(({id, value, type, fruit}) => {
+                        return (
+                        <ListElement
+                        key={id}
+                        id={id}
+                        valueItem={value + ' ' + type + ' ' + fruit}
+                        removeButtonDisabled={removeButtonDisabled}
+                        removeAction={removeAction}
+                        editAction={editAction}
+                        elemValueClasses={"list-element"}
+                        btnEditClasses={"btn btn-primary list-btn-edit"}
+                        btnRemoveClasses={"btn btn-primary list-btn-remove"}
+                        />
+                    );
+                })
+                :  <p>Добавьте элементы в список!</p>
+            }
+            </ol>
             </div>
-        );
-    }
+        </div>
+    );
 }
-
-export default BlockList;

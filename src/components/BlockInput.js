@@ -1,10 +1,12 @@
 import React from "react";
+import classNames from "classnames";
+
 import Select from "./Select";
 import Input from "./Input";
 import Button from "./Button";
 import MySelect from "./MySelect";
 
-class BlockInput extends React.Component {
+export default class BlockInput extends React.Component {
     state = {
             newObject: {
                 value: '',
@@ -14,6 +16,7 @@ class BlockInput extends React.Component {
 
             errTypeInput: '',
             errTypeSelect: '',
+            
             errShowInput: '',
             errShowSelect: '',
 
@@ -27,24 +30,12 @@ class BlockInput extends React.Component {
 
             nameSubmitBtn: '',
 
-            closeStateMySelect: '',
-            valueMySelect: '',
-            searchOptionMySelect: [],
-            arrowChange: '',
-            focusAppearance: ''    
+            valueMySelect: '',  
         };
 
     typeOpt = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
 
     mySelectOptions = ['Яблоко', 'Арбуз', 'Ананас', 'Апельсин'];
-
-    errBorderClass = 'red-border';
-
-    btnArrowClass = 'btn-arrow';
-
-    arrowUpClass = 'bg-image-btn-up';
-
-    arrowDownClass = 'bg-image-btn-down';
 
     initialState = {
         newObject: {
@@ -57,11 +48,7 @@ class BlockInput extends React.Component {
         valueMySelect: '',
         nameSubmitBtn: 'Добавить',
         titleInput: 'Добавить данные:',
-
-        closeStateMySelect: true,
-        focusAppearance: false,
-        searchOptionMySelect: this.mySelectOptions,
-        arrowChange: this.btnArrowClass + ' ' + this.arrowDownClass
+        method: 'post'
     };
 
     componentDidMount() {
@@ -69,7 +56,7 @@ class BlockInput extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.editMode !==- 1 &&  prevProps.editMode !== this.props.editMode){
+        if (this.props.editMode !==- 1 &&  prevProps.editMode !== this.props.editMode){
             const editObject = this.props.editData();
 
             this.setState( {
@@ -83,119 +70,36 @@ class BlockInput extends React.Component {
                 valueMySelect: editObject.fruit,
 
                 nameSubmitBtn: 'Редактировать',
-                titleInput: `Редактировать элемент №${editObject.id}`
+                titleInput: `Редактировать элемент №${editObject.index}`
             })
         }
     }
 
-    /*MySelect methods*/
-
-    handleBtnArrowSelect = () => {
-        if(this.state.focusAppearance === true) {
-            this.setState({focusAppearance: false});
-            return;
-        }
-
-        if(this.state.arrowChange.search(this.arrowDownClass) !== -1) {
-            this.setState({
-                closeStateMySelect: false,
-                arrowChange: this.btnArrowClass + ' ' + this.arrowUpClass
-            });
-            return;
-        }
-
-        this.setState({
-            closeStateMySelect: true,
-            arrowChange: this.btnArrowClass + ' ' + this.arrowDownClass
-        });
-    }
-
-    closeOptionsSelect = () => {
-        this.setState({
-            closeStateMySelect: true,
-            arrowChange: this.btnArrowClass + ' ' + this.arrowDownClass,
-            focusAppearance:false
-        });
-    }
-
-    openOptionsSelect = () => {
-        this.setState({
-            closeStateMySelect: false,
-            arrowChange: this.btnArrowClass + ' ' + this.arrowUpClass,
-            focusAppearance: true
-        });
-    };
-
-    onClickOptionSelect = e => {
-        if(e === this.state.valueMySelect)
-        {
-            this.setState({
-                closeStateMySelect: true,
-                arrowChange: this.btnArrowClass + ' ' + this.arrowDownClass
-            });
-            return;
-        }
-
-        this.setState(
-            prevState => ({ newObject :
-                    {...prevState.newObject, fruit: e
-                    },
-                valueMySelect: e,
-                closeStateMySelect: true,
-                arrowChange: this.btnArrowClass + ' ' + this.arrowDownClass
-            }));
-    };
-
-    handleChangeMySelect = e => {
-        const searchOptions = this.substrSearch(e.target.value, this.mySelectOptions);
-
-        this.setState( {
-                valueMySelect: e.target.value,
-                searchOptionMySelect: searchOptions
-        });
-    };
-
-
-    substrSearch = (subString = '', arrSearch = []) => {
-        const newArrOption = [];
-        for(let item of arrSearch) {
-            if(item.toLowerCase().search(subString.toLowerCase()) !== -1) {
-                newArrOption.push(item);
-            }
-        }
-        if(newArrOption.length === 0) {
-            return arrSearch;
-        }
-        return newArrOption;
-    };
-
-    /*Validation methods*/
-
     validationInput() {
         if (this.state.newObject.value === '') {
-            return ['Введена пустая строка!', this.errBorderClass];
+            return ['Введена пустая строка!', true];
         } else if (this.state.newObject.value.length < 5) {
-            return ['Длина строки меньше 5 символов!', this.errBorderClass];
+            return ['Длина строки меньше 5 символов!', true];
         } else {
-            return ['', ''];
+            return ['', false];
         }
     }
 
     validationSelect() {
         if (this.state.newObject.type === '') {
-            return ['Не выбран тип!', this.errBorderClass];
+            return ['Не выбран тип!', true];
         }
-        return ['', ''];
+        return ['', false];
     }
 
     validationMySelect() {
-        if(this.mySelectOptions.findIndex(
+        if (this.mySelectOptions.findIndex(
             m=>m.toLowerCase()
             === this.state.valueMySelect.toLowerCase())
             === -1) {
-            return ['Не выбран фрукт!', this.errBorderClass];
+            return ['Не выбран фрукт!', true];
         }
-        return ['', ''];
+        return ['', false];
     }
 
     validationAll() {
@@ -218,9 +122,7 @@ class BlockInput extends React.Component {
         return validInput[0] === '' && validSelect[0] === '' && validMySelect[0] === '';
     }
 
-    /*handle methods*/
-
-    handleValueInput = e => {
+    handleChangeInput = e => {
         let value = e.target.value;
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, value: value
@@ -229,7 +131,7 @@ class BlockInput extends React.Component {
         }));
     };
 
-    handleValueSelect = e => {
+    handleChangeSelect = e => {
         let value = e.target.value;
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, type: value
@@ -238,9 +140,31 @@ class BlockInput extends React.Component {
         }));
     };
 
-    submitAction = (e) => {
+    handleValueMySelect = e => {
+        this.setState( {
+            valueMySelect: e.target.value,
+        });
+    };
+
+    handleChangeMySelect = e => {
+        if (e === this.state.valueMySelect) {
+
+            return false;
+        }
+
+        this.setState(
+            prevState => ({ newObject :
+                    {...prevState.newObject, fruit: e
+                    },
+                valueMySelect: e,
+            }));
+
+        return false;
+    };
+
+    submitAction = e => {
         e.preventDefault();
-        if(!this.validationAll()){
+        if ( !this.validationAll() ) {
             return;
         }
 
@@ -250,6 +174,10 @@ class BlockInput extends React.Component {
 
     handleClearForm() {
         this.setState(this.initialState);
+    }
+
+    sendObjectToServer() {
+        
     }
 
     render() {
@@ -265,11 +193,24 @@ class BlockInput extends React.Component {
             nameSubmitBtn,
             errShowMySelect,
             errTypeMySelect,
-            searchOptionMySelect,
-            closeStateMySelect,
             valueMySelect,
-            arrowChange
         } =  this.state;
+
+        const classInput = classNames({
+            'input': true,
+            'red-border': errShowInput
+        });
+
+        const classSelect = classNames({
+            'form-control': true,
+            'red-border': errShowSelect
+        });
+
+        const classInputMySelect = classNames({
+            'input': true,
+            'my-select-input': true,
+            'red-border': errShowMySelect
+        });
 
         return (
             <div className="row">
@@ -278,13 +219,12 @@ class BlockInput extends React.Component {
                         <Input
                             title={titleInput}
                             name={"value"}
-                            inputClasses={"input"}
+                            inputClasses={classInput}
                             labelClasses={"label-input"}
                             labelErrClasses={"label-error"}
-                            errShowInput={errShowInput}
                             changeValue={editValueInput}
                             errorText={errTypeInput}
-                            handleChange={this.handleValueInput}
+                            handleChange={this.handleChangeInput}
                             value={valueInput}
                             autoComplete={"off"}
                         />
@@ -293,32 +233,26 @@ class BlockInput extends React.Component {
                             name={"type"}
                             labelClasses={"label-input"}
                             labelErrClasses={"label-error"}
-                            selectClasses={"form-control"}
+                            selectClasses={classSelect}
                             value={selectValue}
-                            showErr={errShowSelect}
                             errorText={errTypeSelect}
-                            handleChange={this.handleValueSelect}
+                            handleChange={this.handleChangeSelect}
                             options={this.typeOpt}
                         />
                         <MySelect
                             title={"Выберите фрукт: "}
                             name={"fruit"}
                             labelClasses={"label-input"}
+                            inputClasses={classInputMySelect}
                             labelErrClasses={"label-error"}
                             classMySelect={"my-select"}
                             autoComplete={"off"}
                             placeholder={'Выберите один из фруктов'}
-                            errShowInput={errShowMySelect}
                             errorText={errTypeMySelect}
-                            handleChange={this.handleChangeMySelect}
-                            options={searchOptionMySelect}
-                            closeOptionsSelect={this.closeOptionsSelect}
-                            closeState={closeStateMySelect}
+                            handleChangeInput={this.handleValueMySelect}
+                            options={this.mySelectOptions}
                             value={valueMySelect}
-                            onClickOption={this.onClickOptionSelect}
-                            handleBtnArrowSelect={this.handleBtnArrowSelect}
-                            btnArrowClass={arrowChange}
-                            openOptionsSelect={this.openOptionsSelect}
+                            handleChangeMySelect={this.handleChangeMySelect}
                         />
                         <Button
                             name={nameSubmitBtn}
@@ -331,7 +265,4 @@ class BlockInput extends React.Component {
             </div>
         );
     }
-
 }
-
-export default BlockInput;
