@@ -1,0 +1,14 @@
+.notification {
+    background-color: #007bff;
+    color: white;
+    padding: 1rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 999;
+    transition: top 0.5s ease;
+}
+
+.notification:hover {
+    cursor: default;
+}
