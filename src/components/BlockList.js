@@ -17,15 +17,15 @@ export default function BlockList(props) {
                     {list.length !== 0 ?  list.map(({id, value, type, fruit}) => {
                         return (
                         <ListElement
-                        key={id}
-                        id={id}
-                        valueItem={value + ' ' + type + ' ' + fruit}
-                        removeButtonDisabled={removeButtonDisabled}
-                        removeAction={removeAction}
-                        editAction={editAction}
-                        elemValueClasses={"list-element"}
-                        btnEditClasses={"btn btn-primary list-btn-edit"}
-                        btnRemoveClasses={"btn btn-primary list-btn-remove"}
+                            key={id}
+                            id={id}
+                            valueItem={value + ' ' + type + ' ' + fruit}
+                            removeButtonDisabled={removeButtonDisabled}
+                            removeAction={removeAction}
+                            editAction={editAction}
+                            elemValueClasses={"list-element"}
+                            btnEditClasses={"btn btn-primary list-btn-edit"}
+                            btnRemoveClasses={"btn btn-primary list-btn-remove"}
                         />
                     );
                 })

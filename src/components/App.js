@@ -1,35 +1,41 @@
 import React from 'react';
-import {nanoid} from 'nanoid';
 
-import BlockInput from './BlockInput'
-import BlockList from './BlockList'
+import BlockInput from './BlockInput';
+import BlockList from './BlockList';
+import Notification, { notify } from './Notification';
 
 export default class App extends React.Component {
     state = {
             list: [],
-            editId: -1,
             removeButtonDisabled: false,
+            editObject: null,
+            notifyOn: false
     };
 
-    componentDidMount() {
+    componentDidMount = () => {
         this.getObjectsFromServer();
-    }
+    };
 
-    async getObjectsFromServer() {
-        let response = await fetch('/Object');
+    getObjectsFromServer = async () => {
+        const response = await fetch('/Object');
 
         if (response.ok) { 
-            let objects = await response.json();
+            const objects = await response.json();
             this.setState({
-                list: objects
+                list: objects,
+                notifyOn: false
             });    
             return;
         } 
-        alert("Ошибка HTTP: " + response.status);
-    }
+        this.setState({
+            notify: true
+        });
+        
+        notify("Ошибка HTTP: " + response.status);
+    };
 
-    async sendObjectToServer(object) {
-        let response = await fetch('/Object', { 
+    addObjectToServer = async object => {
+        const response = await fetch('/Object', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -37,14 +43,23 @@ export default class App extends React.Component {
             body: JSON.stringify(object),
         });
         if(response.ok) {
-            return;
+            this.addObjectToLocalState(object);
+            this.setState({
+                notify: false
+            })
+
+            return true;
         }
-        alert("Ошибка HTTP: " + response.status);
-    }
+        this.setState({
+            notify: true
+        })
+        notify("Ошибка HTTP: " + response.status);
+        return false;
+    };
 
     
-    async editObjectToServer(object) {
-        let response = await fetch('/Object', { 
+    editObjectToServer = async object => {
+        const response = await fetch('/Object', { 
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,14 +67,22 @@ export default class App extends React.Component {
             body: JSON.stringify(object),
         });
         if(response.ok) {
-            return;
+
+            this.editObjectFromLocalState(object);
+            return true;
         }
-        alert("Ошибка HTTP: " + response.status);
-    }
+
+        this.setState({
+            notify: true
+        })
+
+        notify("Ошибка HTTP: " + response.status);
+        return false;
+    };
 
     
-    async deleteObjectToServer(id) {
-        let response = await fetch('/Object', { 
+    deleteObjectFromServer = async id => {
+        const response = await fetch('/Object', { 
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -67,102 +90,153 @@ export default class App extends React.Component {
             body: JSON.stringify({id}),
         });
         if(response.ok) {
-            return;
+
+            this.removeObjectFromLocalState(id);
+            return true;
         }
-        alert("Ошибка HTTP: " + response.status);
-    }
 
-    addObject(object) {
-        object.id = nanoid();
-        this.setState( prevState => ({ list :
-                    [...prevState.list, {
-                        id: object.id,
-                        value: object.value,
-                        type: object.type,
-                        fruit: object.fruit
-                    }
-                    ],
-            }
-        ));
-        this.sendObjectToServer(object);
-    }
+        this.setState({
+            notify: true
+        })
 
-    checkEditObject = () => {
-        if (this.state.editId !== -1) {
-            const editIndex = this.state.list.findIndex(m => m.id === this.state.editId);
-            const editObject = this.state.list[editIndex];
+        notify("Ошибка HTTP: " + response.status);
+        return false;
 
-            editObject.index = editIndex+1;
-            return editObject;
-        } else {
-            return "";
-        }
     };
 
+    addObjectToLocalState = object => {
+        const {
+            id,
+            value,
+            type,
+            fruit,
+        } = object;
 
-    editObject(object) {
-        const objectList = this.state.list;
-        object.id = this.state.editId;
-        const editIndex = objectList.findIndex(m => m.id === object.id)
+        this.setState( prevState => ({ list :
+            [...prevState.list, {
+                id,
+                value,
+                type,
+                fruit,
+            }
+            ],
+            notifyOn: false
+        }));
+    }
 
-        objectList[editIndex].value = object.value;
-        objectList[editIndex].type = object.type;
-        objectList[editIndex].fruit = object.fruit;
+    editArray = (object, editArray)  => {
+
+        const {
+            id,
+            value,
+            type,
+            fruit,
+        } = object;
+
+        const editIndex = editArray.findIndex(object => object.id === id);
+
+        return editArray.map( (item, index) => {
+            if(index === editIndex) {
+                return {
+                    id,
+                    value,
+                    type,
+                    fruit,
+                };
+            }
+            return {...item};
+        });
+
+    };    
+
+    editObjectFromLocalState = (object) => {
+        const objectList = this.editArray(object, this.state.list);
 
         this.setState({
             list: objectList,
-            editId: -1,
             removeButtonDisabled: false,
+            editObject: null,
+            notifyOn: false
         });
-        this.editObjectToServer(object);
     }
 
     getData = object => {
-
-        if (this.state.editId !== -1) {
-            this.editObject(object);
+        if (this.state.editObject !== null) {
+            return this.editObjectToServer(object);
         } else {
-            this.addObject(object);
+            return this.addObjectToServer(object);
         }
     };
 
-    removeObject = id => {
-        let listObject = this.state.list;
-        const removeIndex = listObject.findIndex(m => m.id === id);
+    removeObjectFromArray = (id, array) => {
+        const removeIndex = array.findIndex(object => object.id === id);
+        const arrayWithoutObject = [];
 
-        listObject.splice(removeIndex, 1);
-        this.setState({list: listObject});
-        this.deleteObjectToServer(id);
+        array.forEach((item, index) => {
+            if(index !== removeIndex) {
+                arrayWithoutObject.push({...item});
+            }
+        });
+        
+        return arrayWithoutObject;
+    };
+
+    removeObjectFromLocalState = id => {
+        const listObject = this.removeObjectFromArray(id, this.state.list);
+
+        this.setState({
+            list: listObject,
+            notifyOn: false
+        });
+    }
+    getEditObject = (id, objectArray) => {
+        const indexEditObject = objectArray.findIndex(object => object.id === id);
+ 
+        const {
+            value,
+            type,
+            fruit
+        } = objectArray[indexEditObject];
+
+        return {
+            id,
+            value,
+            type,
+            fruit,
+            index: indexEditObject
+        }
     };
 
     getIdEditObjecId = id => {
+        const editObject = this.getEditObject(id, this.state.list);
+
         this.setState({
-            editId: id,
-            removeButtonDisabled: true
+            removeButtonDisabled: true,
+            editObject
         });
     };
 
-    render() {
+    render = () => {
         const {
-            editId,
             list,
-            removeButtonDisabled
+            removeButtonDisabled,
+            editObject,
         } = this.state;
 
         return (
             <div className="container">
+                {this.state.notifyOn && <Notification/>}
                 <BlockInput
-                    editData={this.checkEditObject}
                     getData={this.getData}
-                    editMode={editId}
+                    editObject={editObject}
                 />
                 <BlockList
                     list={list}
-                    removeAction={this.removeObject}
+                    removeAction={this.deleteObjectFromServer}
                     editAction={this.getIdEditObjecId}
                     removeButtonDisabled={removeButtonDisabled}
                 />
             </div>
         );
-    }
+    };
 }

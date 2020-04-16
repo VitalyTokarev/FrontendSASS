@@ -3,20 +3,20 @@ import ReactDOM from 'react-dom';
 
 export default class Options extends React.Component {
     
-    render() {
+    render = () => {
         const  {
-            closeState,
             options,
             handleChangeMySelect,
             getOptionsRef,
+            style
         } = this.props;
 
         return (
             ReactDOM.createPortal(
                 <div 
                     className="my-select-options" 
-                    hidden={closeState}
                     ref={getOptionsRef}
+                    style={style}
                 >
                 {
                     options.map( item => {

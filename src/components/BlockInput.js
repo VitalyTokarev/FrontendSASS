@@ -1,81 +1,89 @@
 import React from "react";
 import classNames from "classnames";
+import {nanoid} from 'nanoid';
 
 import Select from "./Select";
 import Input from "./Input";
 import Button from "./Button";
 import MySelect from "./MySelect";
 
+const typeOpt = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
+
+const mySelectOptions = ['Яблоко', 'Арбуз', 'Ананас', 'Апельсин'];
+
+const initialState = {
+    newObject: {
+        value: '',
+        type: '',
+        fruit: ''
+    },
+    valueInput: '',
+    selectValue: '',
+    valueMySelect: '',
+    nameSubmitBtn: 'Добавить',
+    titleInput: 'Добавить данные:'
+};
+
 export default class BlockInput extends React.Component {
     state = {
-            newObject: {
-                value: '',
-                type: '',
-                fruit: ''
-            },
-
-            errTypeInput: '',
-            errTypeSelect: '',
-            
-            errShowInput: '',
-            errShowSelect: '',
-
-            errShowMySelect: '',
-            errTypeMySelect: '',
-
-            titleInput: '',
-            valueInput: '',
-
-            selectValue: '',
-
-            nameSubmitBtn: '',
-
-            valueMySelect: '',  
-        };
-
-    typeOpt = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
-
-    mySelectOptions = ['Яблоко', 'Арбуз', 'Ананас', 'Апельсин'];
-
-    initialState = {
         newObject: {
             value: '',
             type: '',
             fruit: ''
         },
+
+        errTypeInput: '',
+        errTypeSelect: '',
+        
+        errShowInput: '',
+        errShowSelect: '',
+
+        errShowMySelect: '',
+        errTypeMySelect: '',
+
+        titleInput: '',
         valueInput: '',
+
         selectValue: '',
-        valueMySelect: '',
-        nameSubmitBtn: 'Добавить',
-        titleInput: 'Добавить данные:',
-        method: 'post'
+
+        nameSubmitBtn: '',
+
+        valueMySelect: '',  
     };
 
-    componentDidMount() {
-        this.setState(this.initialState);
+    componentDidMount = () => {
+        this.setState(initialState);
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.props.editMode !==- 1 &&  prevProps.editMode !== this.props.editMode){
-            const editObject = this.props.editData();
+    componentDidUpdate = prevProps => {
+        if (this.props.editObject !== null &&  prevProps.editObject !== this.props.editObject){
+
+            const {
+                id,
+                value,
+                type, 
+                fruit,
+                index
+            } = this.props.editObject;
 
             this.setState( {
                 newObject: {
-                    value: editObject.value,
-                    type: editObject.type,
-                    fruit: editObject.fruit
+                    id,
+                    value,
+                    type,
+                    fruit
                 },
-                valueInput: editObject.value,
-                selectValue: editObject.type,
-                valueMySelect: editObject.fruit,
+                valueInput: value,
+                selectValue: type,
+                valueMySelect: fruit,
 
                 nameSubmitBtn: 'Редактировать',
-                titleInput: `Редактировать элемент №${editObject.index}`
+                titleInput: `Редактировать элемент №${index + 1}`
             })
         }
     }
 
-    validationInput() {
+    validationInput = () => {
         if (this.state.newObject.value === '') {
             return ['Введена пустая строка!', true];
         } else if (this.state.newObject.value.length < 5) {
@@ -85,27 +93,24 @@ export default class BlockInput extends React.Component {
         }
     }
 
-    validationSelect() {
+    validationSelect = () => {
         if (this.state.newObject.type === '') {
             return ['Не выбран тип!', true];
         }
         return ['', false];
     }
 
-    validationMySelect() {
-        if (this.mySelectOptions.findIndex(
-            m=>m.toLowerCase()
-            === this.state.valueMySelect.toLowerCase())
-            === -1) {
+    validationMySelect = () => {
+        if (this.state.newObject.fruit === '') {
             return ['Не выбран фрукт!', true];
         }
         return ['', false];
     }
 
-    validationAll() {
-        let validInput = this.validationInput();
-        let validSelect = this.validationSelect();
-        let validMySelect = this.validationMySelect();
+    validationAll = () => {
+        const validInput = this.validationInput();
+        const validSelect = this.validationSelect();
+        const validMySelect = this.validationMySelect();
 
 
         this.setState({
@@ -115,15 +120,13 @@ export default class BlockInput extends React.Component {
             errShowInput: validInput[1],
             errShowSelect: validSelect[1],
             errShowMySelect: validMySelect[1],
-
-
         });
 
-        return validInput[0] === '' && validSelect[0] === '' && validMySelect[0] === '';
+        return !validInput[1] && !validSelect[1] && !validMySelect[1];
     }
 
-    handleChangeInput = e => {
-        let value = e.target.value;
+    handleChangeInput = event => {
+        const value = event.target.value;
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, value: value
                 },
@@ -131,8 +134,8 @@ export default class BlockInput extends React.Component {
         }));
     };
 
-    handleChangeSelect = e => {
-        let value = e.target.value;
+    handleChangeSelect = event => {
+        const value = event.target.value;
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, type: value
                 },
@@ -140,47 +143,60 @@ export default class BlockInput extends React.Component {
         }));
     };
 
-    handleValueMySelect = e => {
-        this.setState( {
-            valueMySelect: e.target.value,
-        });
-    };
-
-    handleChangeMySelect = e => {
-        if (e === this.state.valueMySelect) {
-
+    handleChangeMySelect = value => {
+        if (value === this.state.valueMySelect) {
             return false;
         }
 
         this.setState(
             prevState => ({ newObject :
-                    {...prevState.newObject, fruit: e
+                    {...prevState.newObject, fruit: value
                     },
-                valueMySelect: e,
+                valueMySelect: value,
             }));
 
         return false;
     };
 
-    submitAction = e => {
-        e.preventDefault();
+    setIdToObject = object => {
+
+        let id;
+
+        if (object.id === undefined) {
+            id = nanoid();
+        } else {
+            id = object.id
+        }
+
+        return {
+            id: id,
+            value: object.value,
+            type: object.type,
+            fruit: object.fruit
+        };
+    }
+
+    submitAction = event => {
+        event.preventDefault();
+        
         if ( !this.validationAll() ) {
             return;
         }
 
-        this.props.getData(this.state.newObject);
-        this.handleClearForm();
+        this.props.getData(
+            this.setIdToObject(this.state.newObject)
+        ).then( successCompletion => {
+            if(successCompletion) {
+                this.handleClearForm();
+            }
+        });
     };
 
-    handleClearForm() {
-        this.setState(this.initialState);
+    handleClearForm = () => {
+        this.setState(initialState);
     }
 
-    sendObjectToServer() {
-        
-    }
-
-    render() {
+    render = () => {
         const {
             titleInput,
             errShowInput,
@@ -237,7 +253,7 @@ export default class BlockInput extends React.Component {
                             value={selectValue}
                             errorText={errTypeSelect}
                             handleChange={this.handleChangeSelect}
-                            options={this.typeOpt}
+                            options={typeOpt}
                         />
                         <MySelect
                             title={"Выберите фрукт: "}
@@ -250,7 +266,7 @@ export default class BlockInput extends React.Component {
                             placeholder={'Выберите один из фруктов'}
                             errorText={errTypeMySelect}
                             handleChangeInput={this.handleValueMySelect}
-                            options={this.mySelectOptions}
+                            options={mySelectOptions}
                             value={valueMySelect}
                             handleChangeMySelect={this.handleChangeMySelect}
                         />

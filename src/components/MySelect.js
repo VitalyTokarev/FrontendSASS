@@ -10,109 +10,139 @@ export default class MySelect extends React.Component {
     
     constructor(props) {
         super(props);
+
         this.state = {
-            closeOptions: true,
+            openOptions: false,
             optionsSelect: props.options,
-            focusAppearance: false
+            searchOptions: props.options,
+            focusAppearance: false,
+            valueInput: '',
+            refOptions: '',
+            refMySelect: '', 
+            firstUpdate: false,
+            styleOptions: {} 
         };
     }
 
-    componentDidMount() {
-        this.fullOptions = this.state.optionsSelect;
-        this.firstUpdate = false;
-
+    componentDidMount = () => {
         window.addEventListener('resize', this.renderOptionsPosition);
     }
 
-    componentWillUnmount() {
+    componentWillUnmount = () => {
         window.removeEventListener('resize', this.renderOptionsPosition);
     }
 
-    componentDidUpdate() {
-        if(!this.firstUpdate){
+    componentDidUpdate = prevProps => {
+        if(!this.state.firstUpdate){
             this.renderOptionsPosition();
-            this.firstUpdate = true;
+            this.setState({
+                firstUpdate: true,
+            });
+        }
+
+        if(prevProps.value !== this.props.value) {
+            this.setState( {valueInput: this.props.value} );
         }
     }
 
-    getOptionsRef = (node) => {
-        this.refOptions = node;
+    getOptionsRef = node => {
+        this.setState({
+            refOptions: node
+        });
     }
 
-    getMySelectRef = (node) => {
-        this.refMySelect = node;
+    getMySelectRef = node => {
+        this.setState({
+            refMySelect: node
+        });
     }
 
     openOnBtnArrow = () => {
-        if(this.state.focusAppearance === true) {
+
+        if (this.state.focusAppearance === true) {
             this.setState({focusAppearance: false});
             return;
         }
 
-        if(this.state.closeOptions) {
+        if (!this.state.openOptions) {
             this.setState({
-                closeOptions: false
+                openOptions: true
             });
+            this.сloseOnBlurOptions();
+
             return;
         }
-
+        
         this.setState({
-            closeOptions: true
+            openOptions: false
         });
+
+        document.removeEventListener('click', this.outsideClickOptionsListener);
 
     }
 
     openOnFocusOptions= () => {
         this.setState({
-            closeOptions: false,
+            openOptions: true,
             focusAppearance: true
         });
+
         this.сloseOnBlurOptions();
     };
 
-    сloseOnBlurOptions() {
+    сloseOnBlurOptions = () => {
         document.addEventListener('click', this.outsideClickOptionsListener);
     }
 
-    closeOnClickOption = value => {
+    handleOnClickOption = value => {
         this.props.handleChangeMySelect(value);
-        this.setState({closeOptions: true});
+        this.setState({openOptions: false});
+        document.removeEventListener('click', this.outsideClickOptionsListener);
     }
 
     outsideClickOptionsListener = event => {
-        if (!this.refOptions.contains(event.target) && !this.refMySelect.contains(event.target)) { 
+        if (!this.state.refOptions.contains(event.target) && !this.state.refMySelect.contains(event.target)) { 
              document.removeEventListener('click', this.outsideClickOptionsListener);
              this.setState({
-                closeOptions: true,
-                focusAppearance:false
+                openOptions: false,
+                focusAppearance:false, 
             });
         }
     }
 
     renderOptionsPosition = () => {
-        const box = this.refMySelect.getBoundingClientRect();
+        const box = this.state.refMySelect.getBoundingClientRect();
 
         const boxObjects = {
             bottom: box.bottom + window.pageYOffset,
             left: box.left + window.pageXOffset,
             right: box.right + window.pageXOffset
         }
-        this.refOptions.style.cssText = `
-          top: ${boxObjects.bottom}px;
-          left: ${boxObjects.left}px;
-          width: ${boxObjects.right-boxObjects.left}px;
-        `;
+
+        this.setState({
+            styleOptions: {
+                top: boxObjects.bottom +'px',
+                left: boxObjects.left +'px',
+                width: boxObjects.right-boxObjects.left +'px'
+            }
+        });
     }
 
-    searchOptions = event => {
-        const foundOptions = this.getOptionsSearch(event.target.value, this.fullOptions);
-        this.setState( { optionsSelect: foundOptions } );
-        this.props.handleChangeInput(event);
+    handleChangeInput = event => {
+        this.setState( {
+            valueInput: event.target.value,
+        });
+    };
+
+    handleSearchOptions = event => {
+        const foundOptions = this.searchOptions(event.target.value, this.state.optionsSelect);
+        this.setState( { searchOptions: foundOptions } );
+        this.handleChangeInput(event);
     }
 
-    getOptionsSearch = (subString = '', arrSearch = []) => {
+    searchOptions = (subString = '', arrSearch = []) => {
         const newArrOption = [];
-        for(let item of arrSearch) {
+        for(const item of arrSearch) {
             if(item.toLowerCase().search(subString.toLowerCase()) !== -1) {
                 newArrOption.push(item);
             }
@@ -123,7 +153,7 @@ export default class MySelect extends React.Component {
         return newArrOption;
     };
 
-    render() {
+    render = () => {
         const {
             classMySelect,
             labelClasses,
@@ -132,20 +162,21 @@ export default class MySelect extends React.Component {
             name,
             title,
             placeholder,
-            value,
             autoComplete,
             errorText,             
         } = this.props;
 
         const {
-            closeOptions,
-            optionsSelect,
+            openOptions,
+            searchOptions,
+            valueInput,
+            styleOptions
         } = this.state;
 
         const classArrowbtn = classNames({
             'btn-arrow': true,
-            'bg-image-btn-up': !closeOptions,
-            'bg-image-btn-down': closeOptions,
+            'bg-image-btn-up': !openOptions,
+            'bg-image-btn-down': openOptions,
         });
 
         return (
@@ -170,18 +201,18 @@ export default class MySelect extends React.Component {
                     <Input
                         name={name}
                         placeholder={placeholder}
-                        handleChange={this.searchOptions}
-                        value={value}
+                        handleChange={this.handleSearchOptions}
+                        value={valueInput}
                         inputClasses={inputClasses}
                         autoComplete={autoComplete}
                     />
-                    <Options
+                    {openOptions && <Options
                         classMySelect={classMySelect}
-                        closeState={closeOptions}
-                        options={optionsSelect}
-                        handleChangeMySelect={this.closeOnClickOption}
+                        options={searchOptions}
+                        handleChangeMySelect={this.handleOnClickOption}
                         getOptionsRef={this.getOptionsRef}
-                    />
+                        style={styleOptions}
+                    />}
                 </div>
                 <label className={labelErrClasses} htmlFor={name}> {errorText} </label>
             </React.Fragment>
