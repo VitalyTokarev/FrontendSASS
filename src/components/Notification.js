@@ -24,6 +24,7 @@ export default class Notification extends React.Component {
             this.onShow(msg);
         });
     }
+    
     onShow = msg => {
         if(this.timeout) {
             clearTimeout(this.timeout);

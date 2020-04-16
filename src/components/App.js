@@ -9,7 +9,6 @@ export default class App extends React.Component {
             list: [],
             removeButtonDisabled: false,
             editObject: null,
-            notifyOn: false
     };
 
     componentDidMount = () => {
@@ -23,14 +22,10 @@ export default class App extends React.Component {
             const objects = await response.json();
             this.setState({
                 list: objects,
-                notifyOn: false
             });    
             return;
         } 
-        this.setState({
-            notify: true
-        });
-        
+
         notify("Ошибка HTTP: " + response.status);
     };
 
@@ -43,16 +38,10 @@ export default class App extends React.Component {
             body: JSON.stringify(object),
         });
         if(response.ok) {
-            this.addObjectToLocalState(object);
-            this.setState({
-                notify: false
-            })
 
+            this.addObjectToLocalState(object);
             return true;
         }
-        this.setState({
-            notify: true
-        })
         notify("Ошибка HTTP: " + response.status);
         return false;
     };
@@ -72,10 +61,6 @@ export default class App extends React.Component {
             return true;
         }
 
-        this.setState({
-            notify: true
-        })
-
         notify("Ошибка HTTP: " + response.status);
         return false;
     };
@@ -94,10 +79,6 @@ export default class App extends React.Component {
             this.removeObjectFromLocalState(id);
             return true;
         }
-
-        this.setState({
-            notify: true
-        })
 
         notify("Ошибка HTTP: " + response.status);
         return false;
@@ -120,7 +101,6 @@ export default class App extends React.Component {
                 fruit,
             }
             ],
-            notifyOn: false
         }));
     }
 
@@ -156,7 +136,6 @@ export default class App extends React.Component {
             list: objectList,
             removeButtonDisabled: false,
             editObject: null,
-            notifyOn: false
         });
     }
 
@@ -186,7 +165,6 @@ export default class App extends React.Component {
 
         this.setState({
             list: listObject,
-            notifyOn: false
         });
     }
     getEditObject = (id, objectArray) => {
@@ -195,7 +173,7 @@ export default class App extends React.Component {
         const {
             value,
             type,
-            fruit
+            fruit,
         } = objectArray[indexEditObject];
 
         return {
@@ -203,7 +181,7 @@ export default class App extends React.Component {
             value,
             type,
             fruit,
-            index: indexEditObject
+            index: indexEditObject,
         }
     };
 
@@ -212,7 +190,7 @@ export default class App extends React.Component {
 
         this.setState({
             removeButtonDisabled: true,
-            editObject
+            editObject,
         });
     };
 
@@ -225,7 +203,7 @@ export default class App extends React.Component {
 
         return (
             <div className="container">
-                {this.state.notifyOn && <Notification/>}
+                <Notification/>
                 <BlockInput
                     getData={this.getData}
                     editObject={editObject}
