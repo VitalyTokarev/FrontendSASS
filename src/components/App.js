@@ -9,10 +9,24 @@ export default class App extends React.Component {
             list: [],
             removeButtonDisabled: false,
             editObject: null,
+            notifyOn: false,
     };
 
     componentDidMount = () => {
         this.getObjectsFromServer();
+    };
+
+    callNotification = msg => {
+        if (this.state.notifyOn) {
+            notify(msg);
+            return;
+        }
+
+        this.setState({
+            notifyOn: true,
+        }, () => {
+            notify(msg);
+        });   
     };
 
     getObjectsFromServer = async () => {
@@ -20,13 +34,22 @@ export default class App extends React.Component {
 
         if (response.ok) { 
             const objects = await response.json();
+            if (this.state.notifyOn) {
+                this.setState({
+                    list: objects,
+                    notifyOn: false,
+                });   
+                return; 
+            } 
+
             this.setState({
                 list: objects,
-            });    
+            });  
+            
             return;
         } 
 
-        notify("Ошибка HTTP: " + response.status);
+        this.callNotification("Ошибка HTTP: " + response.status);
     };
 
     addObjectToServer = async object => {
@@ -37,12 +60,18 @@ export default class App extends React.Component {
             },
             body: JSON.stringify(object),
         });
-        if(response.ok) {
+        if (response.ok) {
+            if (this.notifyOn) {
+                this.setState({
+                    notifyOn: false,
+                })
+            }
 
             this.addObjectToLocalState(object);
             return true;
         }
-        notify("Ошибка HTTP: " + response.status);
+
+        this.callNotification("Ошибка HTTP: " + response.status);
         return false;
     };
 
@@ -55,13 +84,18 @@ export default class App extends React.Component {
             },
             body: JSON.stringify(object),
         });
-        if(response.ok) {
+        if (response.ok) {
+            if (this.notifyOn) {
+                this.setState({
+                    notifyOn: false,
+                })
+            }
 
             this.editObjectFromLocalState(object);
             return true;
         }
 
-        notify("Ошибка HTTP: " + response.status);
+        this.callNotification("Ошибка HTTP: " + response.status);
         return false;
     };
 
@@ -74,13 +108,18 @@ export default class App extends React.Component {
             },
             body: JSON.stringify({id}),
         });
-        if(response.ok) {
-
+        if (response.ok) {
+            if (this.notifyOn) {
+                this.setState({
+                    notifyOn: false,
+                })
+            }
+            
             this.removeObjectFromLocalState(id);
             return true;
         }
 
-        notify("Ошибка HTTP: " + response.status);
+        this.callNotification("Ошибка HTTP: " + response.status);
         return false;
 
     };
@@ -152,7 +191,7 @@ export default class App extends React.Component {
         const arrayWithoutObject = [];
 
         array.forEach((item, index) => {
-            if(index !== removeIndex) {
+            if (index !== removeIndex) {
                 arrayWithoutObject.push({...item});
             }
         });
@@ -203,7 +242,7 @@ export default class App extends React.Component {
 
         return (
             <div className="container">
-                <Notification/>
+                {this.state.notifyOn && <Notification/>}
                 <BlockInput
                     getData={this.getData}
                     editObject={editObject}

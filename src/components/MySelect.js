@@ -33,27 +33,29 @@ export default class MySelect extends React.Component {
     }
 
     componentDidUpdate = prevProps => {
-        if(!this.state.firstUpdate){
+        if (!this.state.firstUpdate){
             this.renderOptionsPosition();
             this.setState({
                 firstUpdate: true,
             });
         }
 
-        if(prevProps.value !== this.props.value) {
-            this.setState( {valueInput: this.props.value} );
+        if (prevProps.value !== this.props.value) {
+            this.setState( {
+                valueInput: this.props.value,
+            } );
         }
     }
 
     getOptionsRef = node => {
         this.setState({
-            refOptions: node
+            refOptions: node,
         });
     }
 
     getMySelectRef = node => {
         this.setState({
-            refMySelect: node
+            refMySelect: node,
         });
     }
 
@@ -66,7 +68,7 @@ export default class MySelect extends React.Component {
 
         if (!this.state.openOptions) {
             this.setState({
-                openOptions: true
+                openOptions: true,
             });
             this.сloseOnBlurOptions();
 
@@ -74,7 +76,7 @@ export default class MySelect extends React.Component {
         }
         
         this.setState({
-            openOptions: false
+            openOptions: false,
         });
 
         document.removeEventListener('click', this.outsideClickOptionsListener);
@@ -84,7 +86,7 @@ export default class MySelect extends React.Component {
     openOnFocusOptions= () => {
         this.setState({
             openOptions: true,
-            focusAppearance: true
+            focusAppearance: true,
         });
 
         this.сloseOnBlurOptions();
@@ -123,7 +125,7 @@ export default class MySelect extends React.Component {
             styleOptions: {
                 top: boxObjects.bottom +'px',
                 left: boxObjects.left +'px',
-                width: boxObjects.right-boxObjects.left +'px'
+                width: boxObjects.right-boxObjects.left +'px',
             }
         });
     }
@@ -143,11 +145,11 @@ export default class MySelect extends React.Component {
     searchOptions = (subString = '', arrSearch = []) => {
         const newArrOption = [];
         for(const item of arrSearch) {
-            if(item.toLowerCase().search(subString.toLowerCase()) !== -1) {
+            if (item.toLowerCase().search(subString.toLowerCase()) !== -1) {
                 newArrOption.push(item);
             }
         }
-        if(newArrOption.length === 0) {
+        if (newArrOption.length === 0) {
             return arrSearch;
         }
         return newArrOption;
@@ -170,7 +172,7 @@ export default class MySelect extends React.Component {
             openOptions,
             searchOptions,
             valueInput,
-            styleOptions
+            styleOptions,
         } = this.state;
 
         const classArrowbtn = classNames({
