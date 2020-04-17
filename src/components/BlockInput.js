@@ -130,7 +130,7 @@ export default class BlockInput extends React.Component {
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, value: value
                 },
-            valueInput: value
+            valueInput: value,
         }));
     };
 
@@ -139,7 +139,7 @@ export default class BlockInput extends React.Component {
         this.setState( prevState => ({ newObject :
                 {...prevState.newObject, type: value
                 },
-            selectValue: value
+            selectValue: value,
         }));
     };
 
@@ -172,7 +172,7 @@ export default class BlockInput extends React.Component {
             id: id,
             value: object.value,
             type: object.type,
-            fruit: object.fruit
+            fruit: object.fruit,
         };
     }
 
@@ -186,7 +186,7 @@ export default class BlockInput extends React.Component {
         this.props.getData(
             this.setIdToObject(this.state.newObject)
         ).then( successCompletion => {
-            if(successCompletion) {
+            if (successCompletion) {
                 this.handleClearForm();
             }
         });
