@@ -163,7 +163,6 @@ export default class BlockInput extends React.Component {
         let id;
 
         if (object._id === undefined) {
-            console.log('new id')
             id = nanoid();
         } else {
             id = object._id
