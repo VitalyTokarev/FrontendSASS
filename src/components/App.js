@@ -30,7 +30,7 @@ export default class App extends React.Component {
     };
 
     getObjectsFromServer = async () => {
-        const response = await fetch('/object/objects_list');
+        const response = await fetch('/object');
 
         if (response.ok) { 
             const objects = await response.json();
@@ -101,7 +101,6 @@ export default class App extends React.Component {
 
     
     deleteObjectFromServer = async id => {
-        console.log(this.state.list);
         const response = await fetch('/object/delete', { 
             method: 'DELETE',
             headers: {
@@ -145,8 +144,6 @@ export default class App extends React.Component {
     }
 
     editArray = (object, editArray)  => {
-
-        console.log(object);
 
         const {
             _id,
