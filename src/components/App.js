@@ -30,7 +30,7 @@ export default class App extends React.Component {
     };
 
     getObjectsFromServer = async () => {
-        const response = await fetch('/Object');
+        const response = await fetch('/object/objects_list');
 
         if (response.ok) { 
             const objects = await response.json();
@@ -53,7 +53,7 @@ export default class App extends React.Component {
     };
 
     addObjectToServer = async object => {
-        const response = await fetch('/Object', { 
+        const response = await fetch('/object/create', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ export default class App extends React.Component {
 
     
     editObjectToServer = async object => {
-        const response = await fetch('/Object', { 
+        const response = await fetch('/object/update', { 
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -101,7 +101,8 @@ export default class App extends React.Component {
 
     
     deleteObjectFromServer = async id => {
-        const response = await fetch('/Object', { 
+        console.log(this.state.list);
+        const response = await fetch('/object/delete', { 
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,7 +127,7 @@ export default class App extends React.Component {
 
     addObjectToLocalState = object => {
         const {
-            id,
+            _id,
             value,
             type,
             fruit,
@@ -134,7 +135,7 @@ export default class App extends React.Component {
 
         this.setState( prevState => ({ list :
             [...prevState.list, {
-                id,
+                _id,
                 value,
                 type,
                 fruit,
@@ -145,19 +146,21 @@ export default class App extends React.Component {
 
     editArray = (object, editArray)  => {
 
+        console.log(object);
+
         const {
-            id,
+            _id,
             value,
             type,
             fruit,
         } = object;
 
-        const editIndex = editArray.findIndex(object => object.id === id);
+        const editIndex = editArray.findIndex(object => object._id === _id);
 
         return editArray.map( (item, index) => {
             if(index === editIndex) {
                 return {
-                    id,
+                    _id,
                     value,
                     type,
                     fruit,
@@ -187,7 +190,7 @@ export default class App extends React.Component {
     };
 
     removeObjectFromArray = (id, array) => {
-        const removeIndex = array.findIndex(object => object.id === id);
+        const removeIndex = array.findIndex(object => object._id === id);
         const arrayWithoutObject = [];
 
         array.forEach((item, index) => {
@@ -206,8 +209,8 @@ export default class App extends React.Component {
             list: listObject,
         });
     }
-    getEditObject = (id, objectArray) => {
-        const indexEditObject = objectArray.findIndex(object => object.id === id);
+    getEditObject = (_id, objectArray) => {
+        const indexEditObject = objectArray.findIndex(object => object._id === _id);
  
         const {
             value,
@@ -216,7 +219,7 @@ export default class App extends React.Component {
         } = objectArray[indexEditObject];
 
         return {
-            id,
+            _id,
             value,
             type,
             fruit,

@@ -59,7 +59,7 @@ export default class BlockInput extends React.Component {
         if (this.props.editObject !== null &&  prevProps.editObject !== this.props.editObject){
 
             const {
-                id,
+                _id,
                 value,
                 type, 
                 fruit,
@@ -68,7 +68,7 @@ export default class BlockInput extends React.Component {
 
             this.setState( {
                 newObject: {
-                    id,
+                    _id,
                     value,
                     type,
                     fruit
@@ -162,14 +162,15 @@ export default class BlockInput extends React.Component {
 
         let id;
 
-        if (object.id === undefined) {
+        if (object._id === undefined) {
+            console.log('new id')
             id = nanoid();
         } else {
-            id = object.id
+            id = object._id
         }
 
         return {
-            id: id,
+            _id: id,
             value: object.value,
             type: object.type,
             fruit: object.fruit,

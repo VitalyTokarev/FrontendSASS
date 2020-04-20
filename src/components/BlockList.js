@@ -14,11 +14,11 @@ export default function BlockList(props) {
         <div className="row">
             <div className="col-6 mx-auto">
                     <ol className={"list"}>
-                    {list.length !== 0 ?  list.map(({id, value, type, fruit}) => {
+                    {list.length !== 0 ?  list.map(({_id, value, type, fruit}) => {
                         return (
                         <ListElement
-                            key={id}
-                            id={id}
+                            key={_id}
+                            id={_id}
                             valueItem={value + ' ' + type + ' ' + fruit}
                             removeButtonDisabled={removeButtonDisabled}
                             removeAction={removeAction}
