@@ -1,5 +1,5 @@
 import React from 'react';
-import '../css/notification.css';
+import './notification.css';
 import ee from 'event-emitter';
 
 const emitter = new ee();

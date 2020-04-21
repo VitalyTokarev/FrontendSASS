@@ -1,8 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import ListElement from "./ListElement";
+import ListElement from './ListElement';
+import BootstrapContainer from '../BootstrapContainer';
 
-export default function BlockList(props) {
+export default function List(props) {
     const {
         list,
         removeButtonDisabled,
@@ -11,10 +12,9 @@ export default function BlockList(props) {
     } = props;
 
     return (
-        <div className="row">
-            <div className="col-6 mx-auto">
-                    <ol className={"list"}>
-                    {list.length !== 0 ?  list.map(({_id, value, type, fruit}) => {
+        <BootstrapContainer colClasses="col-6 mx-auto">
+            <ol className={"list"}>
+                {list.length !== 0 ?  list.map(({_id, value, type, fruit}) => {
                         return (
                         <ListElement
                             key={_id}
@@ -28,11 +28,10 @@ export default function BlockList(props) {
                             btnRemoveClasses={"btn btn-primary list-btn-remove"}
                         />
                     );
-                })
+                    })
                 :  <p>Добавьте элементы в список!</p>
-            }
+                }
             </ol>
-            </div>
-        </div>
+        </BootstrapContainer>
     );
 }

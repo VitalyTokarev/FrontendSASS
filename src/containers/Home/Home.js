@@ -1,10 +1,10 @@
 import React from 'react';
 
-import BlockInput from './BlockInput';
-import BlockList from './BlockList';
-import Notification, { notify } from './Notification';
+import FormComponent from '../../components/FormComponent';
+import List from '../../components/List';
+import Notification, { notify } from '../../components/Notification';
 
-export default class App extends React.Component {
+export default class Home extends React.Component {
     state = {
             list: [],
             removeButtonDisabled: false,
@@ -241,19 +241,19 @@ export default class App extends React.Component {
         } = this.state;
 
         return (
-            <div className="container">
+            <React.Fragment>
                 {this.state.notifyOn && <Notification/>}
-                <BlockInput
+                <FormComponent
                     getData={this.getData}
                     editObject={editObject}
                 />
-                <BlockList
+                <List
                     list={list}
                     removeAction={this.deleteObjectFromServer}
                     editAction={this.getIdEditObjecId}
                     removeButtonDisabled={removeButtonDisabled}
                 />
-            </div>
+            </React.Fragment>
         );
     };
 }

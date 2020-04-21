@@ -1,10 +1,10 @@
-import React from "react";
-
-import '../css/my-select.css';
+import React from 'react';
 import classNames from 'classnames';
-import Input from "./Input";
-import Button from "./Button";
-import Options from "./Options";
+
+import './my-select.css';
+import Input from '../Input/Input';
+import Button from '../Button';
+import Options from './Options';
 
 export default class MySelect extends React.Component {    
     

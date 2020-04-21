@@ -1,11 +1,12 @@
-import React from "react";
-import classNames from "classnames";
-import {nanoid} from 'nanoid';
+import React from 'react';
+import classNames from 'classnames';
+import { nanoid } from 'nanoid';
 
-import Select from "./Select";
-import Input from "./Input";
-import Button from "./Button";
-import MySelect from "./MySelect";
+import Select from '../Select';
+import Input from '../Input';
+import Button from '../Button';
+import MySelect from '../MySelect';
+import BootstrapContainer from '../BootstrapContainer';
 
 const typeOpt = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
 
@@ -229,56 +230,54 @@ export default class BlockInput extends React.Component {
         });
 
         return (
-            <div className="row">
-                <div id="input-block" className={'col-6 mx-auto'}>
-                    <form>
-                        <Input
-                            title={titleInput}
-                            name={"value"}
-                            inputClasses={classInput}
-                            labelClasses={"label-input"}
-                            labelErrClasses={"label-error"}
-                            changeValue={editValueInput}
-                            errorText={errTypeInput}
-                            handleChange={this.handleChangeInput}
-                            value={valueInput}
-                            autoComplete={"off"}
-                        />
-                        <Select
-                            title={"Выберите тип: "}
-                            name={"type"}
-                            labelClasses={"label-input"}
-                            labelErrClasses={"label-error"}
-                            selectClasses={classSelect}
-                            value={selectValue}
-                            errorText={errTypeSelect}
-                            handleChange={this.handleChangeSelect}
-                            options={typeOpt}
-                        />
-                        <MySelect
-                            title={"Выберите фрукт: "}
-                            name={"fruit"}
-                            labelClasses={"label-input"}
-                            inputClasses={classInputMySelect}
-                            labelErrClasses={"label-error"}
-                            classMySelect={"my-select"}
-                            autoComplete={"off"}
-                            placeholder={'Выберите один из фруктов'}
-                            errorText={errTypeMySelect}
-                            handleChangeInput={this.handleValueMySelect}
-                            options={mySelectOptions}
-                            value={valueMySelect}
-                            handleChangeMySelect={this.handleChangeMySelect}
-                        />
-                        <Button
-                            name={nameSubmitBtn}
-                            type={"submit"}
-                            handleOnClick={this.submitAction}
-                            btnClass={"btn btn-primary form-btnSubmit"}
-                        />
-                    </form>
-                </div>
-            </div>
+            <BootstrapContainer colClasses="col-6 mx-auto">
+                <form>
+                    <Input
+                        title={titleInput}
+                        name={"value"}
+                        inputClasses={classInput}
+                        labelClasses={"label-input"}
+                        labelErrClasses={"label-error"}
+                        changeValue={editValueInput}
+                        errorText={errTypeInput}
+                        handleChange={this.handleChangeInput}
+                        value={valueInput}
+                        autoComplete={"off"}
+                    />
+                    <Select
+                        title={"Выберите тип: "}
+                        name={"type"}
+                        labelClasses={"label-input"}
+                        labelErrClasses={"label-error"}
+                        selectClasses={classSelect}
+                        value={selectValue}
+                        errorText={errTypeSelect}
+                        handleChange={this.handleChangeSelect}
+                        options={typeOpt}
+                    />
+                    <MySelect
+                        title={"Выберите фрукт: "}
+                        name={"fruit"}
+                        labelClasses={"label-input"}
+                        inputClasses={classInputMySelect}
+                        labelErrClasses={"label-error"}
+                        classMySelect={"my-select"}
+                        autoComplete={"off"}
+                        placeholder={'Выберите один из фруктов'}
+                        errorText={errTypeMySelect}
+                        handleChangeInput={this.handleValueMySelect}
+                        options={mySelectOptions}
+                        value={valueMySelect}
+                        handleChangeMySelect={this.handleChangeMySelect}
+                    />
+                    <Button
+                        name={nameSubmitBtn}
+                        type={"submit"}
+                        handleOnClick={this.submitAction}
+                        btnClass={"btn btn-primary form-btnSubmit"}
+                    />
+                </form>
+            </BootstrapContainer>
         );
     }
 }
