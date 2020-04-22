@@ -34,6 +34,7 @@ export default class Home extends React.Component {
 
         if (response.ok) { 
             const objects = await response.json();
+            
             if (this.state.notifyOn) {
                 this.setState({
                     list: objects,

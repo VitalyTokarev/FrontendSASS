@@ -1,20 +1,20 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
 
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
-import Button from '../../components/Button'
+import Button from '../../components/Button';
+import { Link } from 'react-router-dom';
+import { useAuth } from "../../context";
 
 const labelClass = 'label-input';
 const labelErrorClass = 'label-error';
 
-export default class Registration extends React.Component {
+export default class Login extends React.Component {
     state = {
         user: { },
         loginInputValue: '',
         passwordInputValue: '',
-        confirmInputValue: ''
     };
 
     handleChangeInput = event => {
@@ -39,7 +39,6 @@ export default class Registration extends React.Component {
         const {
             loginInputValue,
             passwordInputValue,
-            confirmInputValue
         } = this.state;
 
         const loginClassInput = classNames({
@@ -55,7 +54,7 @@ export default class Registration extends React.Component {
         return (
             <BootstrapContainer colClasses="col-6 mx-auto">
                 <form >
-                    <h1 className="text-center">Регистрация</h1>
+                    <h1 className="text-center">Авторизация</h1>
                     <Input
                         title={'Введите логин:'}
                         name={"login"}
@@ -76,21 +75,11 @@ export default class Registration extends React.Component {
                         value={passwordInputValue}
                         autoComplete={'off'}
                     />
-                    <Input
-                        title={"Подтвердите пароль:"}
-                        name={"confirm"}
-                        inputClasses={passwordClassInput}
-                        labelClasses={labelClass}
-                        labelErrClasses={labelErrorClass}
-                        handleChange={this.handleChangeInput}
-                        value={confirmInputValue}
-                        autoComplete={'off'}
-                    />
-                    <Link to="/login">
-                        <p>Уже есть аккаунт? Войти</p>
+                    <Link to="/registration">
+                        <p>Нет аккаунта? Зарегистрироваться</p>
                     </Link>
                     <Button
-                        name={'Зарегистрироваться'}
+                        name={'Войти'}
                         type={"submit"}
                         handleOnClick={this.submitAction}
                         btnClass={"btn btn-primary form-btnSubmit"}
