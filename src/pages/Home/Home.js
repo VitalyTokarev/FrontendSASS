@@ -3,6 +3,7 @@ import React from 'react';
 import FormComponent from '../../components/FormComponent';
 import List from '../../components/List';
 import Notification, { notify } from '../../components/Notification';
+import { AuthContext } from '../../context'
 
 export default class Home extends React.Component {
     state = {
@@ -12,8 +13,19 @@ export default class Home extends React.Component {
             notifyOn: false,
     };
 
+    static contextType = AuthContext;
+
     componentDidMount = () => {
         this.getObjectsFromServer();
+    };
+
+    createAuthHeader = () => {
+        const { authToken } = this.context;
+        if (authToken) {
+            return { Authorization: `Bearer ${authToken}` };
+        } else {
+            return {};
+        }
     };
 
     callNotification = msg => {
@@ -30,7 +42,9 @@ export default class Home extends React.Component {
     };
 
     getObjectsFromServer = async () => {
-        const response = await fetch('/object');
+        const response = await fetch('/object', {
+             headers: this.createAuthHeader(),
+        });
 
         if (response.ok) { 
             const objects = await response.json();
@@ -57,6 +71,7 @@ export default class Home extends React.Component {
         const response = await fetch('/object/create', { 
             method: 'POST',
             headers: {
+                ...this.createAuthHeader(),
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(object),
@@ -81,6 +96,7 @@ export default class Home extends React.Component {
         const response = await fetch('/object/update', { 
             method: 'PUT',
             headers: {
+                ...this.createAuthHeader(),
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(object),
@@ -105,6 +121,7 @@ export default class Home extends React.Component {
         const response = await fetch('/object/delete', { 
             method: 'DELETE',
             headers: {
+                ...this.createAuthHeader(),
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({id}),

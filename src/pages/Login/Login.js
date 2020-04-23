@@ -1,11 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Link } from 'react-router-dom';
 
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { Link } from 'react-router-dom';
-import { useAuth } from "../../context";
+import { AuthContext } from '../../context';
+import Notification, { notify } from '../../components/Notification';
 
 const labelClass = 'label-input';
 const labelErrorClass = 'label-error';
@@ -13,8 +14,9 @@ const labelErrorClass = 'label-error';
 export default class Login extends React.Component {
     state = {
         user: { },
-        loginInputValue: '',
+        emailInputValue: '',
         passwordInputValue: '',
+        notifyOn: false
     };
 
     handleChangeInput = event => {
@@ -30,14 +32,54 @@ export default class Login extends React.Component {
         }));
     };  
 
+    static contextType  = AuthContext;
+
+    callNotification = msg => {
+        if (this.state.notifyOn) {
+            notify(msg);
+            return;
+        }
+
+        this.setState({
+            notifyOn: true,
+        }, () => {
+            notify(msg);
+        });   
+    };
+
+    login = async user => {
+        const response = await fetch('/user/login', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(user),
+        });
+        if (response.ok) {
+            const usersData = await response.json();
+
+            this.context.setCurrUser(usersData);
+            this.props.history.push('/');
+
+            if(this.state.notifyOn) {
+                this.setState({
+                    notifyOn:false,
+                });
+            }
+            return;
+        }
+
+        this.callNotification('Ошибка HTTP:' + response.status);
+    };
+
     submitAction = event => {
         event.preventDefault();
-        console.log(this.state.user);
+        this.login(this.state.user);
     };
 
     render = () => {
         const {
-            loginInputValue,
+            emailInputValue,
             passwordInputValue,
         } = this.state;
 
@@ -52,40 +94,44 @@ export default class Login extends React.Component {
         });
 
         return (
-            <BootstrapContainer colClasses="col-6 mx-auto">
-                <form >
-                    <h1 className="text-center">Авторизация</h1>
-                    <Input
-                        title={'Введите логин:'}
-                        name={"login"}
-                        inputClasses={loginClassInput}
-                        labelClasses={labelClass}
-                        labelErrClasses={labelErrorClass}
-                        handleChange={this.handleChangeInput}
-                        value={loginInputValue}
-                        autoComplete={'off'}
-                    />
-                    <Input
-                        title={"Введите пароль:"}
-                        name={"password"}
-                        inputClasses={passwordClassInput}
-                        labelClasses={labelClass}
-                        labelErrClasses={labelErrorClass}
-                        handleChange={this.handleChangeInput}
-                        value={passwordInputValue}
-                        autoComplete={'off'}
-                    />
-                    <Link to="/registration">
-                        <p>Нет аккаунта? Зарегистрироваться</p>
-                    </Link>
-                    <Button
-                        name={'Войти'}
-                        type={"submit"}
-                        handleOnClick={this.submitAction}
-                        btnClass={"btn btn-primary form-btnSubmit"}
-                    />
-                </form>              
-            </BootstrapContainer>
+            <React.Fragment>
+                {this.state.notifyOn && <Notification/>}
+                <BootstrapContainer colClasses="col-6 mx-auto">
+                    
+                    <form >
+                        <h1 className="text-center">Авторизация</h1>
+                        <Input
+                            title={'Введите e-mail:'}
+                            name={"email"}
+                            inputClasses={loginClassInput}
+                            labelClasses={labelClass}
+                            labelErrClasses={labelErrorClass}
+                            handleChange={this.handleChangeInput}
+                            value={emailInputValue}
+                            autoComplete={'off'}
+                        />
+                        <Input
+                            title={"Введите пароль:"}
+                            name={"password"}
+                            inputClasses={passwordClassInput}
+                            labelClasses={labelClass}
+                            labelErrClasses={labelErrorClass}
+                            handleChange={this.handleChangeInput}
+                            value={passwordInputValue}
+                            autoComplete={'off'}
+                        />
+                        <Link to="/signup">
+                            <p>Нет аккаунта? Зарегистрироваться</p>
+                        </Link>
+                        <Button
+                            name={'Войти'}
+                            type={"submit"}
+                            handleOnClick={this.submitAction}
+                            btnClass={"btn btn-primary form-btnSubmit"}
+                        />
+                    </form>              
+                </BootstrapContainer>
+            </React.Fragment>
         );
     }
 }

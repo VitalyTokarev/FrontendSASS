@@ -10,21 +10,24 @@ import { AuthContext } from "./context";
 export default class App extends React.Component {
 
     state = {
-        authTokens: JSON.parse(localStorage.getItem('tokens')),
+        authToken: JSON.parse(localStorage.getItem('token')),
+        currUser: '',
     };
 
-    setTokens = tokens => {
-        localStorage.setItem("tokens", JSON.stringify(tokens));
+    setCurrUser = userData => {
+        localStorage.setItem("token", JSON.stringify(userData.token));
         this.setState({
-            authTokens: tokens,
+            currUser: userData.user,
+            authToken: userData.token,
         })
     };
 
     render = () => {
         return (
             <AuthContext.Provider value={{
-                authTokens: this.state.authTokens,
-                setAuthTokens: this.setTokens
+                user: this.currUser,
+                authToken: this.state.authToken,
+                setCurrUser: this.setCurrUser
             }}>
                 <BrowserRouter>
                     {routes.map( route => {
