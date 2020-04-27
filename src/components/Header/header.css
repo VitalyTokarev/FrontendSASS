@@ -1,0 +1,20 @@
+.navigation {
+    background: #212529;
+    width: 100%;
+    text-align: right;
+}
+
+.navigation-text, .navigation-link {
+    display: inline-block;
+    color: #ffffff;
+    margin: 1rem;
+}
+
+.navigation-text:hover {
+    cursor: default;
+}
+
+.navigation-link:hover {
+    color: grey;
+    cursor: pointer;
+}

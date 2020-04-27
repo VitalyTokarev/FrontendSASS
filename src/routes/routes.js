@@ -1,16 +1,18 @@
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
-import Authentication from '../components/Authentication';
 
-export default [
+export const routes = [
     {
         isExact: true,
         path: '/',
         name: 'Home',
-        component: Authentication(Home),
+        component: Home,
+        isPrivate: true
     },
+];
 
+export const authorizationRoutes = [
     {
         path: '/login',
         name: 'Login',
