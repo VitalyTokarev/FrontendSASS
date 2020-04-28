@@ -176,26 +176,23 @@ export default class MySelect extends React.Component {
             'bg-image-btn-up': !openOptions,
             'bg-image-btn-down': openOptions,
         });
+        
         const classInput = classNames({
             'input': true,
             'my-select-input': true,
             'red-border': !!errorText
         });
 
-        const setClassLabel = classLabel ||'label-input',
-            setClassErrorLabel = classErrorLabel ||'label-error',
-            setClassSelect = classSelect || 'my-select';
-
         return (
             <React.Fragment>
                 {title &&<label
-                    className={setClassLabel}
+                    className={classLabel ||'label-input'}
                     htmlFor={name}
                 >
                     {title}
                 </label>}
                 <div
-                    className={setClassSelect}
+                    className={classSelect || 'my-select'}
                     onFocus={this.openOnFocusOptions}    
                     tabIndex="0"
                     ref={this.getMySelectRef}
@@ -222,7 +219,7 @@ export default class MySelect extends React.Component {
                     />}
                 </div>
                 <label 
-                    className={setClassErrorLabel} 
+                    className={classErrorLabel ||'label-error'} 
                     htmlFor={name}
                 > {errorText} 
                 </label>

@@ -5,7 +5,6 @@ export default function Input(props) {
     const {
         name,
         title,
-        classInput,
         classLabel,
         classErrorLabel, 
         handleChange,
@@ -14,31 +13,30 @@ export default function Input(props) {
         placeholder,
         autoComplete,
         removePlaceForErrorText,
+        type
     } = props;
 
-    const setClassInput = classInput || classNames({
+    const classInput = props.classInput || classNames({
         'input': true,
         'red-border': !!errorText
     });
 
-    const setClassLabel = classLabel || 'label-input',
-        setClassErrorLabel = classErrorLabel || 'label-error';
-
     return (
         <React.Fragment>
-            {title && <label className={setClassLabel}
+            {title && <label className={classLabel || 'label-input'}
                 htmlFor={name}
             > {title}
             </label>}
             <input onChange={handleChange}
                 value={value}
                 name={name}
-                className={setClassInput}
+                className={classInput}
                 placeholder={placeholder}
                 autoComplete={autoComplete || 'off'}
+                type={type || 'text'}
             />
             { !removePlaceForErrorText && <label
-                className={setClassErrorLabel}
+                className={classErrorLabel || 'label-error'}
                 htmlFor={name}
             > {errorText}
             </label>}

@@ -149,6 +149,7 @@ export default class Login extends React.Component {
                             handleChange={this.handleChangeInput}
                             value={passwordInputValue}
                             errorText={errTextPassword}
+                            type="password"
                         />
                         <Link to="/signup">
                             <p>Нет аккаунта? Зарегистрироваться</p>

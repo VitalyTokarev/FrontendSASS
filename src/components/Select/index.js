@@ -10,30 +10,26 @@ export default function Select(props) {
         options,
         value,
         errorText,
-        classSelect,
         classLabel,
         classErrorLabel 
     } = props;
 
-    const setClassSelect = classSelect || classNames({
+    const classSelect = this.props.classSelect || classNames({
         'form-control': true,
         'red-border': !!errorText
     });
 
-    const setClassLabel = classLabel || 'label-input',
-        setClassErrorLabel = classErrorLabel || 'label-error';
-
     return (
         <React.Fragment>
             {title && <label 
-                className={setClassLabel}
+                className={classLabel || 'label-input'}
                 htmlFor= {name}
             > {title} 
             </label>}
             <select
                 name={name}
                 onChange={handleChange}
-                className={setClassSelect}
+                className={classSelect}
                 value={value}
             >
                 <option value="" disabled>{placeholder}</option>
@@ -48,7 +44,7 @@ export default function Select(props) {
                 })}
             </select>
             <label 
-                className={setClassErrorLabel} 
+                className={classErrorLabel || 'label-error'} 
                 htmlFor={name}
             > {errorText} 
             </label>
