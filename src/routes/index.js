@@ -4,13 +4,17 @@ import {
     BrowserRouter, 
 } from 'react-router-dom';
 
-import { UseAuth } from '../context';
-import { routes,  authorizationRoutes } from './routes';
+import { UseAuth } from '../context/Auth';
+import { 
+    routes,  
+    authorizationRoutes,
+    adminRoute
+} from './routes';
 import Authorization from '../components/Authorization';
 import RedirectToHome from '../components/RedirectTo';
 
 export default function Router(props) {
-    const { isLogin } = UseAuth();
+    const { isLogin, isAdmin } = UseAuth();
 
     return (
         <BrowserRouter>
@@ -25,6 +29,7 @@ export default function Router(props) {
                         exact={route.isExact}
                         path={route.path}
                         component={component}
+                        AuthContextValue={props.AuthContextValue}
                     />
                 );
             })}
@@ -40,6 +45,12 @@ export default function Router(props) {
                 );
             })
             }
+            {isAdmin() && <Route
+                key={adminRoute.path}
+                exact={adminRoute.isExact}
+                path={adminRoute.path}
+                component={Authorization(adminRoute.component)}
+            />}
         </BrowserRouter>
     );
 }

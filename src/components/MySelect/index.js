@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import './my-select.css';
+import './index.css';
 import Input from '../Input';
 import Button from '../Button';
 import Options from './Options';

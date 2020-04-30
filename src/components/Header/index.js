@@ -1,12 +1,25 @@
 import React from 'react';
 
-import './header.css';
+import './index.css';
+import Button from '../Button';
+import { UseAuth } from '../../context/Auth';
 
 export default function header(props) {
+    const { isAdmin, logout, getNameCurrUser } = UseAuth();
+    const redirectAction = () => {
+        props.history.push('/admin_panel');
+    };
+
     return(
-        <nav className="navigation  ml-auto">
-            <span className="navigation-text">Привет, {props.userName}!</span>
-            <span className="navigation-link" onClick={props.logout}>Выйти</span>
+        <nav className="navigation">
+            {!props.disableViewUsers && isAdmin() && <Button
+                name="Показать пользователей"
+                type={"submit"}
+                handleOnClick={redirectAction}
+                btnClass={"btn btn-primary btn-admin"}
+            />}
+            <span className="navigation-text">Привет, {getNameCurrUser()}!</span>
+            <span className="navigation-link" onClick={logout}>Выйти</span>
         </nav>
     );
 };

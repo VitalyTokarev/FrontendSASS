@@ -1,13 +1,32 @@
 import React from 'react';
 
 import Router from './routes';
-import { AuthContext } from "./context";
+import { AuthContext } from "./context/Auth";
+import NotificationHOC from './components/Notification';
+
+const Notification = NotificationHOC(Router);
 
 export default class App extends React.Component {
 
     state = {
-        authToken:  localStorage.getItem('token') || null,
-        currUser: localStorage.getItem('currUser') ? JSON.parse(localStorage.getItem('currUser')): '',
+        authToken:  localStorage.getItem('token') || '',
+        currUser: null,
+    };
+
+    componentDidMount = () => {
+        this.setState({
+            currUser: this.setUserFromLocalStorage(),
+        });
+    };
+
+    setUserFromLocalStorage = () => {
+        let currUser = null;
+
+        try {
+            currUser = JSON.parse(localStorage.getItem('currUser'));
+        } catch(e) { console.log(e); } 
+
+        return currUser;
     };
 
     setCurrUser = user => {
@@ -32,14 +51,21 @@ export default class App extends React.Component {
         if(!token) { return; }
         this.setToken(token);
 
-        const userData = JSON.parse(atob(token.split('.')[1])).data;
+        let userData = '';
+        try{
+            userData = JSON.parse(atob(token.split('.')[1])).data;
+        } catch(e) { console.log(e); }
+
         this.setCurrUser(userData);
     };
 
     getExpireDate = (token) => {
         if (!token) { return null; }
 
-        const jwt = JSON.parse(atob(token.split('.')[1]));
+        let jwt = {};
+        try{
+            jwt = JSON.parse(atob(token.split('.')[1]));
+        } catch(e) { console.log(e); }
 
         if (jwt.exp) {
             return jwt.exp * 1000;
@@ -47,6 +73,13 @@ export default class App extends React.Component {
 
         return null;       
     }
+
+    getNameCurrUser = () => {
+        if (this.state.currUser) {
+            return this.state.currUser.name;
+        }
+        return '';
+    };
 
     tokenIsExpried = (dateExpire) => {
         if (!dateExpire) { return false; }
@@ -68,11 +101,11 @@ export default class App extends React.Component {
 
             if(response.ok) {
                 const updateToken = await response.json();
-                this.setToken(updateToken.token);
+                this.setUserData(updateToken.token);
 
                 return true;
             }
-            if(response.status === 401) { this.removeTokens(); }
+            if(response.status === 401) { this.logout(); }
 
             return false; 
         }
@@ -84,7 +117,11 @@ export default class App extends React.Component {
         return !!this.state.authToken;
     };
 
-    removeTokens = () => {
+    isAdmin = () => {
+        return this.state.currUser && this.state.currUser.role.toLowerCase() === 'admin';
+    };
+
+    logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('currUser');
 
@@ -98,14 +135,15 @@ export default class App extends React.Component {
     render = () => { 
         return (
             <AuthContext.Provider value={{
-                currUser: this.state.currUser.name,
+                getNameCurrUser: this.getNameCurrUser,
+                isAdmin: this.isAdmin,
                 isLogin: this.isLogin,
                 setUserData: this.setUserData,
                 setToken: this.setToken,
                 checkAuthToken: this.checkAuthToken,
-                removeTokens: this.removeTokens,
+                logout: this.logout,
             }}>
-                <Router/>
+                <Notification/>
             </AuthContext.Provider>
         );
     };

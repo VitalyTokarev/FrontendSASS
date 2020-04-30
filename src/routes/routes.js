@@ -1,6 +1,7 @@
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import AdminPanel from '../pages/AdminPanel'
 
 export const routes = [
     {
@@ -8,9 +9,16 @@ export const routes = [
         path: '/',
         name: 'Home',
         component: Home,
-        isPrivate: true
+        isPrivate: true,
     },
 ];
+
+export const adminRoute = {
+    path: '/admin_panel',
+    name: 'AdminPanel',
+    component: AdminPanel,
+    isPrivate: true,
+}
 
 export const authorizationRoutes = [
     {

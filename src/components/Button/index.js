@@ -5,7 +5,8 @@ export default function Button(props) {
         handleOnClick,
         btnClass,
         type,
-        name
+        name,
+        disabled
     } = props;
 
     return (
@@ -13,6 +14,7 @@ export default function Button(props) {
             type={type}
             onClick={handleOnClick}
             className={btnClass}
+            disabled={disabled || false}
         >{name}
         </button>
     );

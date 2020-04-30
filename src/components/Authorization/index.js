@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { UseAuth } from "../../context";
+import { UseAuth } from "../../context/Auth";
 
 export default WrappedComponent => {
     return function Autorization(props) {

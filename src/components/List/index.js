@@ -14,7 +14,7 @@ export default function List(props) {
     return (
         <BootstrapContainer colClasses="col-6 mx-auto">
             <ol className={"list"}>
-                {list.length !== 0 ?  list.map(({_id, value, type, fruit}) => {
+                { list.length ?  list.map(({_id, value, type, fruit}) => {
                         return (
                         <ListElement
                             key={_id}

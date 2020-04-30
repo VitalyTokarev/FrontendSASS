@@ -1,34 +1,34 @@
 import React from 'react';
 
-import FormToDo from '../../components/FormToDo';
-import List from '../../components/List';
+import FormUsers from '../../components/FormUsers';
+import TableUsers from '../../components/TableUsers';
 import { AuthContext } from '../../context/Auth';
 import Header from '../../components/Header';
 import { getEditElement, removeElementFromArray, getEditArray} from '../../helpers/arrayMethods';
 
-export default class Home extends React.Component {
+export default class AdminPanel extends React.Component {
     state = {
-            list: [],
+            listUsers: [],
             removeButtonDisabled: false,
-            editObject: null,
+            editUser: null,
     };
 
     static contextType = AuthContext;
 
     componentDidMount = () => {
-        this.getObjectsFromServer();
+        this.getUsersFromServer();
     };
 
-    getObjectsFromServer = async () => {
+    getUsersFromServer = async () => {
         if ( !await this.context.checkAuthToken() ) { return; }
 
-        const response = await fetch('/object');
+        const response = await fetch('/admin/users/show');
 
         if (response.ok) { 
-            const objects = await response.json();
-            
+            const users = await response.json();
+
             this.setState({
-                list: objects,
+                listUsers: users,
             });  
             
             return;
@@ -38,44 +38,23 @@ export default class Home extends React.Component {
             this.context.logout();
         }
 
+        //this.callNotification("Ошибка HTTP: " + response.status);
     };
 
-    addObjectToServer = async object => {
+    addUserToServer = async user => {
         if ( !await this.context.checkAuthToken() ) { return; }
 
-        const response = await fetch('/object/create', { 
+        const response = await fetch('/admin/users/create', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(object),
+            body: JSON.stringify(user),
         });
         if (response.ok) {
-            const idObject = await response.json();
+            const idUser = await response.json();
 
-            this.addObjectToLocalState(object, idObject);
-            return true;
-        }
-
-        if (response.status === 403) {
-            this.context.logout();
-        }
-
-        return false;
-    };
-
-    editObjectToServer = async object => {
-        if ( !await this.context.checkAuthToken() ) { return; }
-
-        const response = await fetch('/object/update', { 
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(object),
-        });
-        if (response.ok) {
-            this.editObjectFromLocalState(object);
+            this.addUserToLocalState(user, idUser);
             return true;
         }
 
@@ -87,19 +66,41 @@ export default class Home extends React.Component {
         return false;
     };
 
-    deleteObjectFromServer = async id => {
+    editUserToServer = async user => {
         if ( !await this.context.checkAuthToken() ) { return; }
 
-        const response = await fetch('/object/delete', { 
+        const response = await fetch('/admin/users/update', { 
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+        if (response.ok) {
+            this.editUserFromLocalState(user);
+            return true;
+        }
+
+        if (response.status === 403) {
+            this.context.logout();
+        }
+
+        //this.callNotification("Ошибка HTTP: " + response.status);
+        return false;
+    };
+
+    deleteUserFromServer = async id => {
+        if ( !await this.context.checkAuthToken() ) { return; }
+
+        const response = await fetch('/admin/users/delete', { 
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({id}),
         });
-        if (response.ok) {
-            
-            this.removeObjectFromLocalState(id);
+        if (response.ok) {            
+            this.removeUserFromLocalState(id);
             return true;
         }
 
@@ -112,79 +113,79 @@ export default class Home extends React.Component {
 
     };
 
-    addObjectToLocalState = (object, _id) => {
+    addUserToLocalState = (object, _id) => {
         const {
-            value,
-            type,
-            fruit,
+            name,
+            email,
         } = object;
 
-        this.setState( prevState => ({ list :
-            [...prevState.list, {
+        this.setState( prevState => ({ listUsers :
+            [...prevState.listUsers, {
                 _id,
-                value,
-                type,
-                fruit,
+                name,
+                email,
+                role: 'user',
             }
             ],
         }));
     }
-   
-    editObjectFromLocalState = (object) => {
-        const objectList = getEditArray(object, '_id', this.state.list);
+  
+    editUserFromLocalState = (user) => {
+        const usersList = getEditArray(user, '_id', this.state.listUsers);
 
         this.setState({
-            list: objectList,
+            listUsers: usersList,
             removeButtonDisabled: false,
             editObject: null,
         });
     }
 
-    removeObjectFromLocalState = id => {
-        const listObject = removeElementFromArray(id, '_id', this.state.list);
+    removeUserFromLocalState = id => {
+        const listUsers = removeElementFromArray(id, '_id', this.state.listUsers);
 
         this.setState({
-            list: listObject,
+            listUsers: listUsers,
         });
     }
 
-    getIdEditObjecId = id => {
-        const editObject = getEditElement(id, '_id', this.state.list);
+    getIdEditUserId = id => {
+        const editUser = getEditElement(id, '_id', this.state.listUsers);
 
         this.setState({
             removeButtonDisabled: true,
-            editObject,
+            editUser,
         });
     };
 
-    getData = object => {
-        if (this.state.editObject !== null) {
-            return this.editObjectToServer(object);
+    getData = user => {
+        if (this.state.editUser !== null) {
+            return this.editUserToServer(user);
         } else {
-            return this.addObjectToServer(object);
+            return this.addUserToServer(user);
         }
     };
 
     render = () => {
         const {
-            list,
+            listUsers,
             removeButtonDisabled,
-            editObject,
+            editUser,
         } = this.state;
 
         return (
             <React.Fragment>
                 <Header 
                     history={this.props.history}
+                    disableViewUsers={true}
                 />
-                <FormToDo
+                <FormUsers
                     getData={this.getData}
-                    editObject={editObject}
+                    editUser={editUser}
                 />
-                <List
-                    list={list}
-                    removeAction={this.deleteObjectFromServer}
-                    editAction={this.getIdEditObjecId}
+                <TableUsers
+                    list={listUsers}
+                    removeAction={this.deleteUserFromServer}
+                    editAction={this.getIdEditUserId}
                     removeButtonDisabled={removeButtonDisabled}
                 />
             </React.Fragment>

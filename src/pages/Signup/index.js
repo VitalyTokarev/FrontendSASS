@@ -4,14 +4,12 @@ import { Link } from 'react-router-dom';
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { AuthContext } from '../../context';
-import Notification, { notify } from '../../components/Notification';
-
-const regValidateExpressionEmail = '^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$';
+import { AuthContext } from '../../context/Auth';
+import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 
 export default class Registration extends React.Component {
     state = {
-        user: { },
+        user: {},
 
         nameInputValue: '',
         emailInputValue: '',
@@ -20,24 +18,9 @@ export default class Registration extends React.Component {
         errTextName: '',
         errTextEmail: '',
         errTextPassword: '',
-
-        notifyOn: false,
     };
 
     static contextType  = AuthContext;
-
-    callNotification = msg => {
-        if (this.state.notifyOn) {
-            notify(msg);
-            return;
-        }
-
-        this.setState({
-            notifyOn: true,
-        }, () => {
-            notify(msg);
-        });   
-    };
 
     signup = async user => {
         const response = await fetch('/user/signup', { 
@@ -54,11 +37,6 @@ export default class Registration extends React.Component {
             this.context.setUserData(userData.token);
             this.props.history.push('/');
 
-            if(this.state.notifyOn) {
-                this.setState({
-                    notify:false,
-                });
-            }
             return;
         }
 
@@ -71,28 +49,11 @@ export default class Registration extends React.Component {
 
         this.callNotification('HTTP Error:' + response.status);
     };
-
-    validatinhEmptyAndLength = (item, name, requireLength) => {
-        if ( !item ) {
-            return 'Введена пустая строка!'
-        } else if ( requireLength && item.length < requireLength ) {
-            return `Длинна ${name} меньше ${requireLength} символов!`;
-        }
-
-        return '';
-    };
-
-    validationEmail = () => {
-        if ( !this.state.emailInputValue.match(regValidateExpressionEmail)) {
-            return 'Почтовый адрес некорректен!';
-        }
-        return '';
-    }
     
-    validationAll = () => {
-        const validName = this.validatinhEmptyAndLength(this.state.nameInputValue, 'имени', 5);
-        const validPassword = this.validatinhEmptyAndLength(this.state.passwordInputValue, 'пароля', 6);
-        const validEmail = this.validationEmail();
+    validation = () => {
+        const validName = checkEmptyAndLength(this.state.nameInputValue, 'имени', 5);
+        const validPassword = checkEmptyAndLength(this.state.passwordInputValue, 'пароля', 6);
+        const validEmail = validationEmail(this.state.emailInputValue);
 
 
         this.setState({
@@ -102,7 +63,7 @@ export default class Registration extends React.Component {
         });
 
         return !validName && !validPassword && !validEmail;
-    }
+    };
 
     handleChangeInput = event => {
         const value = event.target.value;
@@ -120,13 +81,16 @@ export default class Registration extends React.Component {
     submitAction = event => {
         event.preventDefault();
         
-        if ( !this.validationAll() ) { return; }
+        if ( !this.validation() ) { return; }
         this.signup(this.state.user);
     };
 
     render = () => {
        
         const {
+            errTextName,
+            errTextEmail,
+            errTextPassword,
             nameInputValue,
             emailInputValue,
             passwordInputValue,
@@ -134,7 +98,6 @@ export default class Registration extends React.Component {
         
         return (
             <React.Fragment>
-                {this.state.notifyOn && <Notification/>}
                 <BootstrapContainer colClasses="col-6 mx-auto">
                     <form >
                         <h1 className="text-center">Регистрация</h1>
@@ -143,21 +106,21 @@ export default class Registration extends React.Component {
                             name={"name"}
                             handleChange={this.handleChangeInput}
                             value={nameInputValue}
-                            errorText={this.state.errTextName}
+                            errorText={errTextName}
                         />
                         <Input
                             title={'Ваш e-mail адрес:'}
                             name={"email"}
                             handleChange={this.handleChangeInput}
                             value={emailInputValue}
-                            errorText={this.state.errTextEmail}
+                            errorText={errTextEmail}
                         />
                         <Input
                             title={"Введите пароль:"}
                             name={"password"}
                             handleChange={this.handleChangeInput}
                             value={passwordInputValue}
-                            errorText={this.state.errTextPassword}
+                            errorText={errTextPassword}
                         />
                         <Link to="/login">
                             <p>Уже есть аккаунт? Войти</p>

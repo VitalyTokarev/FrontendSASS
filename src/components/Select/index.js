@@ -14,7 +14,7 @@ export default function Select(props) {
         classErrorLabel 
     } = props;
 
-    const classSelect = this.props.classSelect || classNames({
+    const classSelect = props.classSelect || classNames({
         'form-control': true,
         'red-border': !!errorText
     });

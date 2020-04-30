@@ -1,17 +1,17 @@
 import React from 'react';
-import { nanoid } from 'nanoid';
 
 import Select from '../Select';
 import Input from '../Input';
 import Button from '../Button';
 import MySelect from '../MySelect';
 import BootstrapContainer from '../BootstrapContainer';
+import { checkEmptyAndLength } from '../../helpers/validation';
 
-const typeOpt = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
+const TYPE_OPTIONS = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
 
-const mySelectOptions = ['Яблоко', 'Арбуз', 'Ананас', 'Апельсин'];
+const FRUIT_OPTIONS = ['Яблоко', 'Арбуз', 'Ананас', 'Апельсин'];
 
-const initialState = {
+const INITIAL_STATE = {
     newObject: {
         value: '',
         type: '',
@@ -21,7 +21,7 @@ const initialState = {
     selectValue: '',
     valueMySelect: '',
     nameSubmitBtn: 'Добавить',
-    titleInput: 'Добавить данные:'
+    title: 'Добавить данные'
 };
 
 export default class BlockInput extends React.Component {
@@ -36,7 +36,7 @@ export default class BlockInput extends React.Component {
         errTypeSelect: '',
         errTypeMySelect: '',
 
-        titleInput: '',
+        title: '',
         valueInput: '',
 
         selectValue: '',
@@ -47,8 +47,8 @@ export default class BlockInput extends React.Component {
     };
 
     componentDidMount = () => {
-        this.setState(initialState);
-    }
+        this.setState(INITIAL_STATE);
+    };
 
     componentDidUpdate = prevProps => {
         if (this.props.editObject !== null &&  prevProps.editObject !== this.props.editObject){
@@ -73,32 +73,16 @@ export default class BlockInput extends React.Component {
                 valueMySelect: fruit,
 
                 nameSubmitBtn: 'Редактировать',
-                titleInput: `Редактировать элемент №${index + 1}`
+                title: `Редактировать элемент №${index + 1}`
             })
         }
-    }
+    };
 
-    validationInput = () => {
-        if ( !this.state.newObject.value ) {
-            return 'Введена пустая строка!';
-        } else if (this.state.newObject.value.length < 5) {
-            return 'Длина строки меньше 5 символов!';
-        } else {
-            return '';
-        }
-    }
 
-    validationSelect = (item, name) => {
-        if ( !item ) {
-            return `Не выбран ${name}!`;
-        }
-        return '';
-    }
-
-    validationAll = () => {
-        const validInput = this.validationInput();
-        const validSelect = this.validationSelect(this.state.newObject.type, 'тип');
-        const validMySelect = this.validationSelect(this.state.newObject.fruit, 'фрукт');
+    validation = () => {
+        const validInput = checkEmptyAndLength(this.state.newObject.value, 'строки', 5);
+        const validSelect = checkEmptyAndLength(this.state.newObject.type);
+        const validMySelect = checkEmptyAndLength(this.state.newObject.fruit);
 
         this.setState({
             errTypeInput: validInput,
@@ -107,7 +91,7 @@ export default class BlockInput extends React.Component {
         });
 
         return !validInput && !validSelect && !validMySelect;
-    }
+    };
 
     handleChangeInput = event => {
         const value = event.target.value;
@@ -142,34 +126,15 @@ export default class BlockInput extends React.Component {
         return false;
     };
 
-    setIdToObject = object => {
-
-        let id;
-
-        if (object._id) {
-            id = object._id;
-        } else {
-            id = nanoid();
-        }
-
-        return {
-            _id: id,
-            value: object.value,
-            type: object.type,
-            fruit: object.fruit,
-        };
-    }
-
     submitAction = event => {
         event.preventDefault();
         
-        if ( !this.validationAll() ) {
+        if ( !this.validation() ) {
             return;
         }
 
-        this.props.getData(
-            this.setIdToObject(this.state.newObject)
-        ).then( successCompletion => {
+        this.props.getData( this.state.newObject )
+        .then( successCompletion => {
             if (successCompletion) {
                 this.handleClearForm();
             }
@@ -177,13 +142,12 @@ export default class BlockInput extends React.Component {
     };
 
     handleClearForm = () => {
-        this.setState(initialState);
+        this.setState(INITIAL_STATE);
     }
 
     render = () => {
         const {
-            titleInput,
-            editValueInput,
+            title,
             errTypeInput,
             valueInput,
             selectValue,
@@ -196,10 +160,10 @@ export default class BlockInput extends React.Component {
         return (
             <BootstrapContainer colClasses="col-6 mx-auto">
                 <form>
+                    <h4 className="text-center">{title}</h4>
                     <Input
-                        title={titleInput}
+                        title="Введите значение:"
                         name={"value"}
-                        changeValue={editValueInput}
                         errorText={errTypeInput}
                         handleChange={this.handleChangeInput}
                         value={valueInput}
@@ -210,14 +174,14 @@ export default class BlockInput extends React.Component {
                         value={selectValue}
                         errorText={errTypeSelect}
                         handleChange={this.handleChangeSelect}
-                        options={typeOpt}
+                        options={TYPE_OPTIONS}
                     />
                     <MySelect
                         title={"Выберите фрукт: "}
                         name={"fruit"}
                         placeholder={'Выберите один из фруктов'}
                         errorText={errTypeMySelect}
-                        options={mySelectOptions}
+                        options={FRUIT_OPTIONS}
                         value={valueMySelect}
                         handleChangeMySelect={this.handleChangeMySelect}
                     />

@@ -4,11 +4,8 @@ import { Link } from 'react-router-dom';
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { AuthContext } from '../../context';
-import Notification, { notify } from '../../components/Notification';
-
-const regValidateExpressionEmail = '^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$';
-
+import { AuthContext } from '../../context/Auth';
+import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 
 export default class Login extends React.Component {
     state = {
@@ -18,25 +15,10 @@ export default class Login extends React.Component {
 
         errTextEmail: '',
         errTextPassword: '',
-
-        notifyOn: false
     };
 
     static contextType  = AuthContext;
     
-    callNotification = msg => {
-        if (this.state.notifyOn) {
-            notify(msg);
-            return;
-        }
-
-        this.setState({
-            notifyOn: true,
-        }, () => {
-            notify(msg);
-        });   
-    };
-
     login = async user => {
         const userData = btoa(user.email) + ':' + btoa(user.password);
 
@@ -53,12 +35,6 @@ export default class Login extends React.Component {
 
             this.context.setUserData(userData.token);
             this.props.history.push('/');
-
-            if(this.state.notifyOn) {
-                this.setState({
-                    notifyOn:false,
-                });
-            }
             return;
         }
 
@@ -70,29 +46,12 @@ export default class Login extends React.Component {
             return;
         }
 
-        this.callNotification('Ошибка HTTP:' + response.status);
+        //this.callNotification('Ошибка HTTP:' + response.status);
     };
-
-    validatinhEmptyAndLength = (item, name, requireLength) => {
-        if ( !item ) {
-            return 'Введена пустая строка!'
-        } else if ( requireLength && item.length < requireLength ) {
-            return `Длинна ${name} меньше ${requireLength} символов!`;
-        }
-
-        return '';
-    };
-
-    validationEmail = () => {
-        if ( !this.state.emailInputValue.match(regValidateExpressionEmail)) {
-            return 'Почтовый адрес некорректен!';
-        }
-        return '';
-    }
     
-    validationAll = () => {
-        const validPassword = this.validatinhEmptyAndLength(this.state.passwordInputValue, 'пароля', 6);
-        const validEmail = this.validationEmail();
+    validation = () => {
+        const validPassword = checkEmptyAndLength(this.state.passwordInputValue);
+        const validEmail = validationEmail(this.state.emailInputValue);
 
         this.setState({
             errTextPassword: validPassword,
@@ -100,7 +59,7 @@ export default class Login extends React.Component {
         });
 
         return !validPassword && !validEmail;
-    }
+    };
 
     handleChangeInput = event => {
         const value = event.target.value;
@@ -118,7 +77,7 @@ export default class Login extends React.Component {
     submitAction = event => {
         event.preventDefault();
 
-        if ( !this.validationAll() ) { return;}
+        if ( !this.validation() ) { return;}
         this.login(this.state.user);
     };
 
@@ -132,7 +91,6 @@ export default class Login extends React.Component {
 
         return (
             <React.Fragment>
-                {this.state.notifyOn && <Notification/>}
                 <BootstrapContainer colClasses="col-6 mx-auto">                 
                     <form >
                         <h1 className="text-center">Авторизация</h1>
