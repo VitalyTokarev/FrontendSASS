@@ -45,7 +45,7 @@ export default ( { getData, editUser } ) => {
             setName(name);
             setEmail(email);
 
-            setRequiredPassword(true);
+            setRequiredPassword(false);
 
             setTitleData({       
                 nameSubmitBtn: 'Редактировать',
