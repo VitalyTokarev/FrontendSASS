@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export default function Input(props) {
+export default props => {
     const {
         name,
         title,

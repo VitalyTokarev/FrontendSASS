@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Router from './routes';
 import { AuthContext } from "./context/Auth";
@@ -6,20 +6,15 @@ import NotificationHOC from './components/Notification';
 
 const Notification = NotificationHOC(Router);
 
-export default class App extends React.Component {
+export default () => {
+    const [authToken, setAuthToken] = useState( localStorage.getItem('token') || '' );
+    const [currUser, setCurrUserState] = useState(null);
 
-    state = {
-        authToken:  localStorage.getItem('token') || '',
-        currUser: null,
-    };
+    useEffect(() => {
+        setCurrUser(setUserFromLocalStorage());
+    }, []);
 
-    componentDidMount = () => {
-        this.setState({
-            currUser: this.setUserFromLocalStorage(),
-        });
-    };
-
-    setUserFromLocalStorage = () => {
+    const setUserFromLocalStorage = () => {
         let currUser = null;
 
         try {
@@ -29,37 +24,40 @@ export default class App extends React.Component {
         return currUser;
     };
 
-    setCurrUser = user => {
-        if (!user) { return; }
+    const setCurrUser = user => {
+        if ( !user ) { return; }
 
         localStorage.setItem('currUser', JSON.stringify(user));
-        this.setState({
-            currUser: user,
-        })
+        setCurrUserState(user);
     };
 
-    setToken = token => {
+    const setToken = token => {
         if (!token) { return; }
 
         localStorage.setItem('token', token);
-        this.setState({
-            authToken: token,
-        })
+        setAuthToken(token);
     };
 
-    setUserData = token => {
-        if(!token) { return; }
-        this.setToken(token);
+    const setUserData = token => {
+        if( !token ) { return; }
+        setToken(token);
 
         let userData = '';
         try{
             userData = JSON.parse(atob(token.split('.')[1])).data;
         } catch(e) { console.log(e); }
 
-        this.setCurrUser(userData);
+        setCurrUser(userData);
     };
 
-    getExpireDate = (token) => {
+    const getNameCurrUser = () => {
+        if (currUser) {
+            return currUser.name;
+        }
+        return '';
+    };
+
+    const getExpireDate = (token) => {
         if (!token) { return null; }
 
         let jwt = {};
@@ -74,38 +72,31 @@ export default class App extends React.Component {
         return null;       
     }
 
-    getNameCurrUser = () => {
-        if (this.state.currUser) {
-            return this.state.currUser.name;
-        }
-        return '';
-    };
-
-    tokenIsExpried = (dateExpire) => {
-        if (!dateExpire) { return false; }
+    const tokenIsExpried = (dateExpire) => {
+        if ( !dateExpire ) { return false; }
 
         return Date.now() > dateExpire;
     };
 
-    checkAuthToken = async () => {
-        if (!this.state.authToken) { return false; }
+    const checkAuthToken = async () => {
+        if ( !authToken)  { return false; }
 
-        if( this.tokenIsExpried( this.getExpireDate(this.state.authToken) )) {
+        if ( tokenIsExpried( getExpireDate(authToken) )) {
 
             const response = await fetch('/user/update_token', {
                 method: 'POST',
                 headers: {
-                    authorization: JSON.stringify( { token: this.state.authToken } ),
+                    authorization: JSON.stringify( { token: authToken } ),
                 },
             });
 
-            if(response.ok) {
+            if (response.ok) {
                 const updateToken = await response.json();
-                this.setUserData(updateToken.token);
+                setUserData(updateToken.token);
 
                 return true;
             }
-            if(response.status === 401) { this.logout(); }
+            if (response.status === 401) { logout(); }
 
             return false; 
         }
@@ -113,38 +104,34 @@ export default class App extends React.Component {
         return true;
     };
 
-    isLogin = () => {
-        return !!this.state.authToken;
+    const isLogin = () => {
+        return authToken;
+    };
+    
+    const isAdmin = () => {
+        return currUser && currUser.role.toLowerCase() === 'admin';
     };
 
-    isAdmin = () => {
-        return this.state.currUser && this.state.currUser.role.toLowerCase() === 'admin';
-    };
-
-    logout = () => {
+    const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('currUser');
 
-        if (this.state.authToken){
-            this.setState({
-                authToken: null,
-            });
+        if (authToken) {
+            setAuthToken('');
         }
     };
 
-    render = () => { 
-        return (
-            <AuthContext.Provider value={{
-                getNameCurrUser: this.getNameCurrUser,
-                isAdmin: this.isAdmin,
-                isLogin: this.isLogin,
-                setUserData: this.setUserData,
-                setToken: this.setToken,
-                checkAuthToken: this.checkAuthToken,
-                logout: this.logout,
-            }}>
-                <Notification/>
-            </AuthContext.Provider>
-        );
-    };
+    return (
+        <AuthContext.Provider value={{
+            getNameCurrUser,
+            isAdmin,
+            isLogin,
+            setUserData,
+            setToken,
+            checkAuthToken,
+            logout,
+        }}>
+            <Notification/>
+        </AuthContext.Provider>
+    ); 
 }

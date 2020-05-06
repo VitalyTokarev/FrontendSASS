@@ -1,116 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 
 import './index.css';
 import Input from '../Input';
 import Button from '../Button';
 import Options from './Options';
+import useFieldState from '../../hooks/useFieldState';
 
-export default class MySelect extends React.Component {    
-    
-    constructor(props) {
-        super(props);
+export default props => {
+    const {
+        value,
+        name,
+        title,
+        handleChange,
+        placeholder,
+        autoComplete,
+        errorText, 
+        classSelect,
+        classLabel,
+        classErrorLabel            
+    } = props;
 
-        this.state = {
-            openOptions: false,
-            optionsSelect: props.options,
-            searchOptions: props.options,
-            focusAppearance: false,
-            valueInput: '',
-            refOptions: '',
-            refMySelect: '', 
-            firstUpdate: false,
-            styleOptions: {} 
-        };
-    }
+    const [openOptions, setOpenOptions] = useState(false);
 
-    componentDidMount = () => {
-        window.addEventListener('resize', this.renderOptionsPosition);
-    }
+    const [options, setOptions] = useState({
+        optionsSelect: props.options,
+        searchOptions: props.options, 
+    });
 
-    componentWillUnmount = () => {
-        window.removeEventListener('resize', this.renderOptionsPosition);
-    }
+    const [focusAppearance, setFocusAppearance] = useState(false);
 
-    componentDidUpdate = (prevProps, prevState) => {
-        if (this.state.openOptions && this.state.openOptions !== prevState.openOptions) {
-            this.renderOptionsPosition();
+    const [inputVlaue, handleChangeInput, , , , setInputValue] = useFieldState();
+
+    const [styleOptions, setStyleOptions] = useState({});
+
+    const mySelectRef = useRef(null);
+
+    useEffect(() => {
+        window.addEventListener('resize', renderOptionsPosition);
+        return(
+            window.removeEventListener('resize', renderOptionsPosition)
+        );
+    }, [mySelectRef]);
+
+    useEffect(() => {
+        if (openOptions) {
+            renderOptionsPosition();
         }
+    }, [openOptions]);
 
-        if (prevProps.value !== this.props.value) {
-            this.setState( {
-                valueInput: this.props.value,
-            } );
-        }
-    }
+    useEffect(() => {
+        setInputValue(value)
+        // eslint-disable-next-line
+    }, [value]);
 
-    getOptionsRef = node => {
-        this.setState({
-            refOptions: node,
-        });
-    }
-
-    getMySelectRef = node => {
-        this.setState({
-            refMySelect: node,
-        });
-    }
-
-    openOnBtnArrow = () => {
-
-        if (this.state.focusAppearance === true) {
-            this.setState({focusAppearance: false});
-            return;
-        }
-
-        if (!this.state.openOptions) {
-            this.setState({
-                openOptions: true,
-            });
-            this.сloseOnBlurOptions();
-
-            return;
-        }
-        
-        this.setState({
-            openOptions: false,
-        });
-
-        document.removeEventListener('click', this.outsideClickOptionsListener);
-
-    }
-
-    openOnFocusOptions= () => {
-        this.setState({
-            openOptions: true,
-            focusAppearance: true,
-        });
-
-        this.сloseOnBlurOptions();
-    };
-
-    сloseOnBlurOptions = () => {
-        document.addEventListener('click', this.outsideClickOptionsListener);
-    }
-
-    handleOnClickOption = value => {
-        this.props.handleChangeMySelect(value);
-        this.setState({openOptions: false});
-        document.removeEventListener('click', this.outsideClickOptionsListener);
-    }
-
-    outsideClickOptionsListener = event => {
-        if (!this.state.refOptions.contains(event.target) && !this.state.refMySelect.contains(event.target)) { 
-             document.removeEventListener('click', this.outsideClickOptionsListener);
-             this.setState({
-                openOptions: false,
-                focusAppearance:false, 
-            });
-        }
-    }
-
-    renderOptionsPosition = () => {
-        const box = this.state.refMySelect.getBoundingClientRect();
+    const renderOptionsPosition = () => {
+        const box = mySelectRef.current.getBoundingClientRect();
 
         const boxObjects = {
             bottom: box.bottom + window.pageYOffset,
@@ -118,28 +63,61 @@ export default class MySelect extends React.Component {
             right: box.right + window.pageXOffset
         }
 
-        this.setState({
-            styleOptions: {
-                top: boxObjects.bottom +'px',
-                left: boxObjects.left +'px',
-                width: boxObjects.right-boxObjects.left +'px',
-            }
-        });
-    }
-
-    handleChangeInput = event => {
-        this.setState( {
-            valueInput: event.target.value,
+        setStyleOptions({
+            top: boxObjects.bottom +'px',
+            left: boxObjects.left +'px',
+            width: boxObjects.right-boxObjects.left +'px',
         });
     };
 
-    handleSearchOptions = event => {
-        const foundOptions = this.searchOptions(event.target.value, this.state.optionsSelect);
-        this.setState( { searchOptions: foundOptions } );
-        this.handleChangeInput(event);
-    }
+    const outsideClickOptionsListener = event => {
+        if( !mySelectRef.current ) { return; }
+        if ( !mySelectRef.current.contains(event.target) ) { 
+             document.removeEventListener('click', outsideClickOptionsListener);
+            setOpenOptions(false);
+            setFocusAppearance(false);
+        }
+    };
 
-    searchOptions = (subString = '', arrSearch = []) => {
+    const сloseOnBlurOptions = () => {
+        document.addEventListener('click', outsideClickOptionsListener);
+    };
+
+    const openOnBtnArrow = () => {
+
+        if (focusAppearance === true) {
+            setFocusAppearance(false);
+            return;
+        }
+
+        if (!openOptions) {
+            setOpenOptions(true);
+            сloseOnBlurOptions();
+
+            return;
+        }
+        setOpenOptions(false);
+
+        document.removeEventListener('click', outsideClickOptionsListener);
+    };
+
+    const openOnFocusOptions= () => {
+        setOpenOptions(true);
+        setFocusAppearance(true);
+
+        сloseOnBlurOptions();
+    };
+
+    const handleOnClickOption = event => {
+        if (inputVlaue !== event.target.textContent ) {
+            event.target.value = event.target.textContent;
+            handleChange(event);
+        }
+        setOpenOptions(false);
+        document.removeEventListener('click', outsideClickOptionsListener);
+    };
+
+    const searchOptions = (subString = '', arrSearch = []) => {
         const newArrOption = [];
         for(const item of arrSearch) {
             if (item.toLowerCase().search(subString.toLowerCase()) !== -1) {
@@ -152,78 +130,66 @@ export default class MySelect extends React.Component {
         return newArrOption;
     };
 
-    render = () => {
-        const {
-            name,
-            title,
-            placeholder,
-            autoComplete,
-            errorText, 
-            classSelect,
-            classLabel,
-            classErrorLabel            
-        } = this.props;
+    const handleSearchOptions = event => {
+        const foundOptions = searchOptions(event.target.value, options.optionsSelect);
+        setOptions( state => ({
+            ...state,
+            searchOptions: foundOptions,
+        }));
+        handleChangeInput(event);
+    };
 
-        const {
-            openOptions,
-            searchOptions,
-            valueInput,
-            styleOptions,
-        } = this.state;
+    const classArrowbtn = classNames({
+        'btn-arrow': true,
+        'bg-image-btn-up': !openOptions,
+        'bg-image-btn-down': openOptions,
+    });
+    
+    const classInput = classNames({
+        'input': true,
+        'my-select-input': true,
+        'red-border': !!errorText
+    });
 
-        const classArrowbtn = classNames({
-            'btn-arrow': true,
-            'bg-image-btn-up': !openOptions,
-            'bg-image-btn-down': openOptions,
-        });
-        
-        const classInput = classNames({
-            'input': true,
-            'my-select-input': true,
-            'red-border': !!errorText
-        });
-
-        return (
-            <React.Fragment>
-                {title &&<label
-                    className={classLabel ||'label-input'}
-                    htmlFor={name}
-                >
-                    {title}
-                </label>}
-                <div
-                    className={classSelect || 'my-select'}
-                    onFocus={this.openOnFocusOptions}    
-                    tabIndex="0"
-                    ref={this.getMySelectRef}
-                >
-                    <Button
-                        handleOnClick={this.openOnBtnArrow}
-                        btnClass={classArrowbtn}
-                        type={"button"}
-                    />
-                    <Input
-                        name={name}
-                        placeholder={placeholder}
-                        handleChange={this.handleSearchOptions}
-                        value={valueInput}
-                        classInput={classInput}
-                        autoComplete={autoComplete}
-                        removePlaceForErrorText={true}
-                    />
-                    {openOptions && <Options
-                        options={searchOptions}
-                        handleChangeMySelect={this.handleOnClickOption}
-                        getOptionsRef={this.getOptionsRef}
-                        style={styleOptions}
-                    />}
-                </div>
-                <label 
-                    className={classErrorLabel ||'label-error'} 
-                    htmlFor={name}
-                > {errorText} 
-                </label>
-            </React.Fragment>
-        )
-    }
+    return (
+        <React.Fragment>
+            {title &&<label
+                className={classLabel ||'label-input'}
+                htmlFor={name}
+            >
+                {title}
+            </label>}
+            <div
+                className={classSelect || 'my-select'}
+                onFocus={openOnFocusOptions}    
+                tabIndex="0"
+                ref={mySelectRef}
+            >
+                <Button
+                    handleOnClick={openOnBtnArrow}
+                    btnClass={classArrowbtn}
+                    type={"button"}
+                />
+                <Input
+                    name={name}
+                    placeholder={placeholder}
+                    handleChange={handleSearchOptions}
+                    value={inputVlaue}
+                    classInput={classInput}
+                    autoComplete={autoComplete}
+                    removePlaceForErrorText={true}
+                />
+                {openOptions && <Options
+                    options={options.searchOptions}
+                    handleChangeMySelect={handleOnClickOption}
+                    style={styleOptions}
+                />}
+            </div>
+            <label 
+                className={classErrorLabel ||'label-error'} 
+                htmlFor={name}
+            > {errorText} 
+            </label>
+        </React.Fragment>
+    );
 }

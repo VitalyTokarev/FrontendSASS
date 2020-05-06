@@ -4,7 +4,7 @@ import {
     BrowserRouter, 
 } from 'react-router-dom';
 
-import { UseAuth } from '../context/Auth';
+import { useAuthContext } from '../context/Auth';
 import { 
     routes,  
     authorizationRoutes,
@@ -14,7 +14,7 @@ import Authorization from '../components/Authorization';
 import RedirectToHome from '../components/RedirectTo';
 
 export default function Router(props) {
-    const { isLogin, isAdmin } = UseAuth();
+    const { isLogin, isAdmin } = useAuthContext();
 
     return (
         <BrowserRouter>

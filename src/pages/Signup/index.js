@@ -1,28 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { AuthContext } from '../../context/Auth';
+import { useAuthContext } from '../../context/Auth';
+import { useNotificationContext } from '../../context/Notification';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
+import useFieldState from '../../hooks/useFieldState';
 
-export default class Registration extends React.Component {
-    state = {
-        user: {},
+export default ( { history } ) => {
+    const [ name, handleChangeName, errorTextName, setErrorName ] = useFieldState();
+    const [ email, handleChangeEmail, errorTextEmail, setErrorEmail ] = useFieldState();
+    const [ password, handleChangePassword, errorTextPassword, setErrorPassword ] = useFieldState();
 
-        nameInputValue: '',
-        emailInputValue: '',
-        passwordInputValue: '',
+    const [user, setUser] = useState({});
 
-        errTextName: '',
-        errTextEmail: '',
-        errTextPassword: '',
-    };
+    const { setUserData } = useAuthContext();
 
-    static contextType  = AuthContext;
+    const { notify } = useNotificationContext();
 
-    signup = async user => {
+    useEffect(() => {
+        setUser({
+            name,
+            email,
+            password,
+        });
+    }, [name, password, email]);
+
+    const signup = async user => {
         const response = await fetch('/user/signup', { 
             method: 'POST',
             headers: {
@@ -34,106 +40,76 @@ export default class Registration extends React.Component {
         if (response.ok) {
             const userData = await response.json();
 
-            this.context.setUserData(userData.token);
-            this.props.history.push('/');
+            setUserData(userData.token);
+            history.push('/');
 
             return;
         }
 
         if (response.status === 403) {
-            this.setState({
-                errTextEmail: 'Пользователь с таким почтовым адресом уже зарегистрирован!'
-            });
+            setErrorEmail('Пользователь с таким почтовым адресом уже зарегистрирован!');
             return; 
         }
 
-        this.callNotification('HTTP Error:' + response.status);
+        notify('HTTP Error:' + response.status);
     };
-    
-    validation = () => {
-        const validName = checkEmptyAndLength(this.state.nameInputValue, 'имени', 5);
-        const validPassword = checkEmptyAndLength(this.state.passwordInputValue, 'пароля', 6);
-        const validEmail = validationEmail(this.state.emailInputValue);
 
+    const validation = () => {
+        const validName = checkEmptyAndLength(name, 'имени', 5);
+        const validPassword = checkEmptyAndLength(password, 'пароля', 6);
+        const validEmail = validationEmail(email);
 
-        this.setState({
-            errTextName: validName,
-            errTextPassword: validPassword,
-            errTextEmail: validEmail,
-        });
+        setErrorName(validName);
+        setErrorPassword(validPassword)
+        setErrorEmail(validEmail);
 
         return !validName && !validPassword && !validEmail;
     };
 
-    handleChangeInput = event => {
-        const value = event.target.value;
-        const name = event.target.name;
-
-        this.setState( prevState => ({
-            user: {
-                ...prevState.user,
-                [name]: value,
-            },
-            [name + 'InputValue']: value,
-        }));
-    }; 
-
-    submitAction = event => {
+    const submitAction = event => {
         event.preventDefault();
         
-        if ( !this.validation() ) { return; }
-        this.signup(this.state.user);
+        if ( !validation() ) { return; }
+        signup(user);
     };
 
-    render = () => {
-       
-        const {
-            errTextName,
-            errTextEmail,
-            errTextPassword,
-            nameInputValue,
-            emailInputValue,
-            passwordInputValue,
-        } = this.state;
-        
-        return (
-            <React.Fragment>
-                <BootstrapContainer colClasses="col-6 mx-auto">
-                    <form >
-                        <h1 className="text-center">Регистрация</h1>
-                        <Input
-                            title={'Ваше имя:'}
-                            name={"name"}
-                            handleChange={this.handleChangeInput}
-                            value={nameInputValue}
-                            errorText={errTextName}
-                        />
-                        <Input
-                            title={'Ваш e-mail адрес:'}
-                            name={"email"}
-                            handleChange={this.handleChangeInput}
-                            value={emailInputValue}
-                            errorText={errTextEmail}
-                        />
-                        <Input
-                            title={"Введите пароль:"}
-                            name={"password"}
-                            handleChange={this.handleChangeInput}
-                            value={passwordInputValue}
-                            errorText={errTextPassword}
-                        />
-                        <Link to="/login">
-                            <p>Уже есть аккаунт? Войти</p>
-                        </Link>
-                        <Button
-                            name={'Зарегистрироваться'}
-                            type={"submit"}
-                            handleOnClick={this.submitAction}
-                            btnClass={"btn btn-primary form-btnSubmit"}
-                        />
-                    </form>              
-                </BootstrapContainer>
-            </React.Fragment>
-        );
-    }
+    return (
+        <React.Fragment>
+            <BootstrapContainer colClasses="col-6 mx-auto">
+                <form >
+                    <h1 className="text-center">Регистрация</h1>
+                    <Input
+                        title={'Ваше имя:'}
+                        name={"name"}
+                        handleChange={handleChangeName}
+                        value={name}
+                        errorText={errorTextName}
+                    />
+                    <Input
+                        title={'Ваш e-mail адрес:'}
+                        name={"email"}
+                        handleChange={handleChangeEmail}
+                        value={email}
+                        errorText={errorTextEmail}
+                    />
+                    <Input
+                        title={"Введите пароль:"}
+                        name={"password"}
+                        handleChange={handleChangePassword}
+                        value={password}
+                        errorText={errorTextPassword}
+                    />
+                    <Link to="/login">
+                        <p>Уже есть аккаунт? Войти</p>
+                    </Link>
+                    <Button
+                        name={'Зарегистрироваться'}
+                        type={"submit"}
+                        handleOnClick={submitAction}
+                        btnClass={"btn btn-primary form-btnSubmit"}
+                    />
+                </form>              
+            </BootstrapContainer>
+        </React.Fragment>
+    );
 }

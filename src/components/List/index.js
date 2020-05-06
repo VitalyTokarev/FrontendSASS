@@ -3,7 +3,7 @@ import React from 'react';
 import ListElement from './ListElement';
 import BootstrapContainer from '../BootstrapContainer';
 
-export default function List(props) {
+export default props => {
     const {
         list,
         removeButtonDisabled,

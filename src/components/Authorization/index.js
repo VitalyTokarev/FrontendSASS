@@ -1,10 +1,11 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { UseAuth } from "../../context/Auth";
+import { useAuthContext } from "../../context/Auth";
 
 export default WrappedComponent => {
     return function Autorization(props) {
-      const { isLogin } = UseAuth();  
+      const { isLogin } = useAuthContext();  
+      
       return (isLogin() ? 
         <WrappedComponent {...props}/>
         :

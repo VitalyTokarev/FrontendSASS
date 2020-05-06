@@ -1,84 +1,66 @@
-import React from 'react';
-import './index.css';
+import React, { useState, useEffect } from 'react';
 import ee from 'event-emitter';
 
+import './index.css';
 import { NotificationContext } from '../../context/Notification';
 
 const emitter = new ee();
 
 const notify = msg => {
     emitter.emit('notification' , msg);
-}
+};
 
 export default WrappedComponent => {
-    return class Notification extends React.Component {
-        constructor(props){
-            super(props);
-            
-            this.state = {
-                style: {top: -100 + 'px'},
-                msg: '',
-                visible: false
+    return props => {
+        const [style, setStyle] = useState({top: -100 + 'px'});
+        const [msg, setMsg] = useState('');
+        const [visible, setVisible] = useState(false);
+
+        useEffect(() => {          
+            const onShow = msg => {
+                if (visible) { return; }
+                setMsg(msg);
+                setVisible(true);
             };
+          
+            emitter.on('notification', onShow);
+            return () => emitter.off('notification', onShow);
+        }, [visible]);
 
-            this.timeout = null;
-
-            emitter.on('notification', msg => {
-                this.onShow(msg);
-            });
-        }
-        
-        onShow = msg => {
-            if(this.timeout) {
-                clearTimeout(this.timeout);
-
-                this.setState({
-                        style: {top: -100 + 'px'},
-                        visible: false
-                    }, 
-                    () => {
-                        this.timeout = setTimeout(() =>{
-                            this.showNotification(msg);
-                        }, 500);
-                    }
-                );
-            } else {
-                this.showNotification(msg);
+        useEffect(() => {
+            if (visible) {
+                setTimeout(() => {
+                    setStyle({top: 16 + 'px'});
+                }, 100)
             }
-        };
+        }, [visible]);
 
-        showNotification = msg => {
-            this.setState({
-                    visible: true,
-                    style: {top: 16 + 'px'},
-                    msg: msg
-                }, 
-                () => {
-                    this.timeout = setTimeout(() => {
-                        this.setState({
-                            style: {top: -100 + 'px'},
-                            visible:false
-                        }); 
-                    }, 3000);
-                }
-            );
-        };
+        useEffect(() => {
+            if (style.top === 16 + 'px') {
+                setTimeout(() => {
+                  setStyle({top: -100 + 'px'});
+                }, 3000);
+            }
 
-        render = () => {
-            return(
-                <React.Fragment>
-                    {this.state.visible && 
-                    <div className="notification" style={this.state.style}>
-                        {this.state.msg}
-                    </div>}
-                        <NotificationContext.Provider 
-                            value = { notify }
-                        >
-                            <WrappedComponent {...this.props}/>
-                        </NotificationContext.Provider>
-                        }
-                </React.Fragment>               
-            );
-        };
-    }
+            if (style.top === -100 + 'px') {
+                setTimeout(() => {
+                    setVisible(false);
+                }, 500)
+            }
+        }, [style]);
+
+        return(
+            <React.Fragment>
+                {visible && 
+                <div className="notification" style={style}>
+                    {msg}
+                </div>}
+                    <NotificationContext.Provider 
+                        value = { {notify} }
+                    >
+                        <WrappedComponent {...props}/>
+                    </NotificationContext.Provider>
+            </React.Fragment>               
+        );
+    };
 }

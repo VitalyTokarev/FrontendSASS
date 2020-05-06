@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from 'classnames';
 
-export default function Select(props) {
+export default props => {
     const {
         name,
         title,

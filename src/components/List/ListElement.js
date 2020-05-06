@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ListElement(props) {
+export default props => {
     const {
         id,
         valueItem,

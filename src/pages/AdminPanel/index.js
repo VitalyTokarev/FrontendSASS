@@ -1,194 +1,74 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import FormUsers from '../../components/FormUsers';
 import TableUsers from '../../components/TableUsers';
-import { AuthContext } from '../../context/Auth';
 import Header from '../../components/Header';
-import { getEditElement, removeElementFromArray, getEditArray} from '../../helpers/arrayMethods';
+import { getEditElement } from '../../helpers/arrayMethods';
+import useCrudState from '../../hooks/useCrudState';
 
-export default class AdminPanel extends React.Component {
-    state = {
-            listUsers: [],
-            removeButtonDisabled: false,
-            editUser: null,
-    };
+const PATH_CRUD = [ '/admin/users/create', '/admin/users/show', '/admin/users/update', '/admin/users/delete' ];
 
-    static contextType = AuthContext;
+const INITIAL_EDIT_STATE = {
+    removeButtonDisabled: false,
+    editUser: null,
+};
 
-    componentDidMount = () => {
-        this.getUsersFromServer();
-    };
+export default ( { history } ) => {
+    const [editState, setEditState] = useState(INITIAL_EDIT_STATE);
 
-    getUsersFromServer = async () => {
-        if ( !await this.context.checkAuthToken() ) { return; }
+    const [
+        users, 
+        createUserAtServer, 
+        getUsersFromServer, 
+        editUserAtServer,
+        deleteUserFromServer,
+    ] = useCrudState(PATH_CRUD);
 
-        const response = await fetch('/admin/users/show');
+    useEffect(() => {
+        getUsersFromServer();
+    }, [getUsersFromServer]);
 
-        if (response.ok) { 
-            const users = await response.json();
+    const getIdEditUserId = id => {
+        const editUser = getEditElement(id, '_id', users);
 
-            this.setState({
-                listUsers: users,
-            });  
-            
-            return;
-        } 
-
-        if (response.status === 403) {
-            this.context.logout();
-        }
-
-        //this.callNotification("Ошибка HTTP: " + response.status);
-    };
-
-    addUserToServer = async user => {
-        if ( !await this.context.checkAuthToken() ) { return; }
-
-        const response = await fetch('/admin/users/create', { 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(user),
-        });
-        if (response.ok) {
-            const idUser = await response.json();
-
-            this.addUserToLocalState(user, idUser);
-            return true;
-        }
-
-        if (response.status === 403) {
-            this.context.logout();
-        }
-
-        //this.callNotification("Ошибка HTTP: " + response.status);
-        return false;
-    };
-
-    editUserToServer = async user => {
-        if ( !await this.context.checkAuthToken() ) { return; }
-
-        const response = await fetch('/admin/users/update', { 
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(user),
-        });
-        if (response.ok) {
-            this.editUserFromLocalState(user);
-            return true;
-        }
-
-        if (response.status === 403) {
-            this.context.logout();
-        }
-
-        //this.callNotification("Ошибка HTTP: " + response.status);
-        return false;
-    };
-
-    deleteUserFromServer = async id => {
-        if ( !await this.context.checkAuthToken() ) { return; }
-
-        const response = await fetch('/admin/users/delete', { 
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({id}),
-        });
-        if (response.ok) {            
-            this.removeUserFromLocalState(id);
-            return true;
-        }
-
-        if (response.status === 403) {
-            this.context.logout();
-        }
-
-        //this.callNotification("Ошибка HTTP: " + response.status);
-        return false;
-
-    };
-
-    addUserToLocalState = (object, _id) => {
-        const {
-            name,
-            email,
-        } = object;
-
-        this.setState( prevState => ({ listUsers :
-            [...prevState.listUsers, {
-                _id,
-                name,
-                email,
-                role: 'user',
-            }
-            ],
-        }));
-    }
-  
-    editUserFromLocalState = (user) => {
-        const usersList = getEditArray(user, '_id', this.state.listUsers);
-
-        this.setState({
-            listUsers: usersList,
-            removeButtonDisabled: false,
-            editObject: null,
-        });
-    }
-
-    removeUserFromLocalState = id => {
-        const listUsers = removeElementFromArray(id, '_id', this.state.listUsers);
-
-        this.setState({
-            listUsers: listUsers,
-        });
-    }
-
-    getIdEditUserId = id => {
-        const editUser = getEditElement(id, '_id', this.state.listUsers);
-
-        this.setState({
+        setEditState({
             removeButtonDisabled: true,
             editUser,
         });
     };
 
-    getData = user => {
-        if (this.state.editUser !== null) {
-            return this.editUserToServer(user);
+    const getData = user => {
+        if (editState.editUser !== null) {
+            return editUserAtServer(user).then(
+                success => {
+                    if ( success ) {
+                        setEditState(INITIAL_EDIT_STATE);
+                    }
+                    return success;
+                }
+            );
         } else {
-            return this.addUserToServer(user);
+            return createUserAtServer(user);
         }
     };
 
-    render = () => {
-        const {
-            listUsers,
-            removeButtonDisabled,
-            editUser,
-        } = this.state;
+    return (
+        <React.Fragment>
+            <Header 
+                history={history}
+                disableViewUsers={true}
+            />
+            <FormUsers
+                getData={getData}
+                editUser={editState.editUser}
+            />
+            <TableUsers
+                list={users}
+                removeAction={deleteUserFromServer}
+                editAction={getIdEditUserId}
+                removeButtonDisabled={editState.removeButtonDisabled}
+            />
+        </React.Fragment>
+    );
 
-        return (
-            <React.Fragment>
-                <Header 
-                    history={this.props.history}
-                    disableViewUsers={true}
-                />
-                <FormUsers
-                    getData={this.getData}
-                    editUser={editUser}
-                />
-                <TableUsers
-                    list={listUsers}
-                    removeAction={this.deleteUserFromServer}
-                    editAction={this.getIdEditUserId}
-                    removeButtonDisabled={removeButtonDisabled}
-                />
-            </React.Fragment>
-        );
-    };
 }

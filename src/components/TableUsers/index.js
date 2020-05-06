@@ -3,7 +3,7 @@ import React from 'react';
 import BootstrapContainer from '../BootstrapContainer';
 import TableRow from './TableRow';
 
-export default function List(props) {
+export default props => {
     const {
         list,
         removeButtonDisabled,

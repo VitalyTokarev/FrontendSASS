@@ -2,17 +2,17 @@ import React from 'react';
 
 import './index.css';
 import Button from '../Button';
-import { UseAuth } from '../../context/Auth';
+import { useAuthContext } from '../../context/Auth';
 
-export default function header(props) {
-    const { isAdmin, logout, getNameCurrUser } = UseAuth();
+export default ( { history, disableViewUsers } ) => {
+    const { isAdmin, logout, getNameCurrUser } = useAuthContext();
     const redirectAction = () => {
-        props.history.push('/admin_panel');
+        history.push('/admin_panel');
     };
 
     return(
         <nav className="navigation">
-            {!props.disableViewUsers && isAdmin() && <Button
+            {!disableViewUsers && isAdmin() && <Button
                 name="Показать пользователей"
                 type={"submit"}
                 handleOnClick={redirectAction}

@@ -1,11 +1,11 @@
 import React from 'react';
 
-export default function BootstrapContainer(props) {
+export default ( { colClasses, children } ) => {
      return (
         <div className="container">
             <div className="row">
-                <div className={props.colClasses}>
-                    {props.children}
+                <div className={colClasses}>
+                    {children}
                 </div>
             </div>
         </div>

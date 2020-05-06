@@ -12,15 +12,8 @@ export const getEditElement = (value, key, array) => {
 
 export const removeElementFromArray = (value, key, array) => {
     const removeIndex = array.findIndex(element => element[key] === value);
-    const arrayWithoutElement = [];
-
-    array.forEach((item, index) => {
-        if (index !== removeIndex) {
-            arrayWithoutElement.push({...item});
-        }
-    });
     
-    return arrayWithoutElement;
+    return array.filter((_, index) => index !== removeIndex);
 };
 
 export const getEditArray = (element, key, editArray)  => {

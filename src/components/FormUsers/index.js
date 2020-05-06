@@ -1,169 +1,129 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Input from '../Input';
 import Button from '../Button';
 import BootstrapContainer from '../BootstrapContainer';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
+import useFieldState from '../../hooks/useFieldState';
+import { INITIAL_TITLE_DATA } from '../../helpers/constants'
 
-const INITIAL_STATE = {
-    user: {
-        name: '',
-        email: '',
-        password: '',
-    },
+export default ( { getData, editUser } ) => {
+    const [ name, handleChangeName, errorTextName, setErrorName, resetName, setName ] = useFieldState();
+    const [ email, handleChangeEmail, errorTextEmail, setErrorEmail, resetEmail, setEmail ] = useFieldState();
+    const [ password, handleChangePassword, errorTextPassword, setErrorPassword, resetPassword ] = useFieldState();
 
-    nameInputValue: '',
-    emailInputValue: '',
-    passwordInputValue: '',
+    const [ requiredPassword, setRequiredPassword ] = useState( true );  
+    const [ titleData, setTitleData] = useState(INITIAL_TITLE_DATA);
+    const [user, setUser] = useState({});
 
-    nameSubmitBtn: 'Добавить',
-    title: 'Добавить пользователя',
-    requiredPassword: true
-};
+    useEffect(() => {
+        setUser( state => ({
+            ...state,
+            name,
+            password,
+            email,
+        }));
+    }, [ name, password, email]);
 
-export default class BlockInput extends React.Component {
-    state = {
-        user: {},
-
-        errTextName: '',
-        errTextEmail: '',
-        errTextPassword: '',
-
-        nameInputValue: '',
-        emailInputValue: '',
-        passwordInputValue: '',
-    
-        nameSubmitBtn: '',
-        title: '', 
-
-        requiredPassword: '',
-    };
-
-    componentDidMount = () => {
-        this.setState(INITIAL_STATE);
-    };
-
-    componentDidUpdate = prevProps => {
-        if (this.props.editUser !== null &&  prevProps.editUser !== this.props.editUser){
-
+    useEffect(() => {
+        if (editUser) {
             const {
                 _id,
                 name,
                 email,
                 role,
                 index,
-            } = this.props.editUser;
+            } = editUser;
 
-            this.setState( {
-                user: {
-                    _id,
-                    name,
-                    email,
-                    role,
-                },
+            setUser({
+                _id,
+                name,
+                email,
+                role,
+            });
 
-                nameInputValue: name,
-                emailInputValue: email,
+            setName(name);
+            setEmail(email);
 
+            setRequiredPassword(true);
+
+            setTitleData({       
                 nameSubmitBtn: 'Редактировать',
                 title: `Редактировать пользователя №${index + 1}`,
-                requiredPassword: false
-            })
+            });
         }
-    }
-
-    validationAll = () => {
-        const validName = checkEmptyAndLength(this.state.nameInputValue, 'имени', 5);
-        const validPassword = checkEmptyAndLength(this.state.passwordInputValue, 'пароля', 6, this.state.requiredPassword);
-        const validEmail = validationEmail(this.state.emailInputValue);
+    // eslint-disable-next-line
+    }, [editUser]);
 
 
-        this.setState({
-            errTextName: validName,
-            errTextPassword: validPassword,
-            errTextEmail: validEmail,
-        });
+    const validation = () => {
+        const validName = checkEmptyAndLength(name, 'имени', 5);
+        const validPassword = checkEmptyAndLength(password, 'пароля', 6, requiredPassword);
+        const validEmail = validationEmail(email);
+
+        setErrorName(validName);
+        setErrorPassword(validPassword)
+        setErrorEmail(validEmail);
 
         return !validName && !validPassword && !validEmail;
     };
 
-    handleChangeInput = event => {
-        const value = event.target.value;
-        const name = event.target.name;
+    const handleClearForm = () => {
+        resetName();
+        resetEmail();
+        resetPassword();
+        setTitleData(INITIAL_TITLE_DATA);
+        setRequiredPassword(true);
+        setUser({});
+    };
 
-        this.setState( prevState => ({
-            user: {
-                ...prevState.user,
-                [name]: value,
-            },
-            [name + 'InputValue']: value,
-        }));
-    }; 
-
-    submitAction = event => {
+    const submitAction = event => {
         event.preventDefault();
         
-        if ( !this.validationAll() ) {
+        if ( !validation() ) {
             return;
         }
 
-        this.props.getData( this.state.user )
+        getData( user )
         .then( successCompletion => {
             if (successCompletion) {
-                this.handleClearForm();
+                handleClearForm();
             }
         });
     };
 
-    handleClearForm = () => {
-        this.setState(INITIAL_STATE);
-    }
-
-    render = () => {
-        const {
-            errTextName,
-            errTextEmail,
-            errTextPassword,
-            nameInputValue,
-            emailInputValue,
-            passwordInputValue,
-            title,
-            nameSubmitBtn,
-        } =  this.state;
-
-        return (
-            <BootstrapContainer colClasses="col-6 mx-auto">
-                <form>
-                    <h4 className="text-center">{title}</h4>
-                    <Input
-                        title={'Имя пользователя:'}
-                        name={"name"}
-                        handleChange={this.handleChangeInput}
-                        value={nameInputValue}
-                        errorText={errTextName}
-                    />
-                    <Input
-                        title={'E-mail адрес пользователя:'}
-                        name={"email"}
-                        handleChange={this.handleChangeInput}
-                        value={emailInputValue}
-                        errorText={errTextEmail}
-                    />
-                    <Input
-                        title={"Ввести новый пароль:"}
-                        name={"password"}
-                        handleChange={this.handleChangeInput}
-                        value={passwordInputValue}
-                        errorText={errTextPassword}
-                    />
-                    <Button
-                        name={nameSubmitBtn}
-                        type={"submit"}
-                        handleOnClick={this.submitAction}
-                        btnClass={"btn btn-primary form-btnSubmit"}
-                    />
-                </form>
-            </BootstrapContainer>
-        );
-    }
+    return (
+        <BootstrapContainer colClasses="col-6 mx-auto">
+            <form>
+                <h4 className="text-center">{titleData.title}</h4>
+                <Input
+                    title={'Имя пользователя:'}
+                    name={"name"}
+                    handleChange={handleChangeName}
+                    value={name}
+                    errorText={errorTextName}
+                />
+                <Input
+                    title={'E-mail адрес пользователя:'}
+                    name={"email"}
+                    handleChange={handleChangeEmail}
+                    value={email}
+                    errorText={errorTextEmail}
+                />
+                <Input
+                    title={"Ввести новый пароль:"}
+                    name={"password"}
+                    handleChange={handleChangePassword}
+                    value={password}
+                    errorText={errorTextPassword}
+                />
+                <Button
+                    name={titleData.nameSubmitBtn}
+                    type={"submit"}
+                    handleOnClick={submitAction}
+                    btnClass={"btn btn-primary form-btnSubmit"}
+                />
+            </form>
+        </BootstrapContainer>
+    );
 }
