@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ListElement from './ListElement';
 import BootstrapContainer from '../BootstrapContainer';
 
 const List = ({
@@ -11,26 +10,41 @@ const List = ({
     editAction
 }) => {
 
+    const createList = () => {
+        return (
+            list.length ?  
+            list.map( item => {
+                let valueItem = '';
+                for ( const key in item) {
+                    if ( key !== '_id' ) {
+                        valueItem += item[key] + ' ';
+                    }
+                }
+
+                return (
+                    <li key={item._id}>
+                        <p className="list-element">{valueItem}</p>
+                        <button
+                            className="btn btn-primary list-btn-edit"
+                            onClick={() => {editAction(item._id)}}
+                        >Редактировать
+                        </button>
+                        <button
+                            disabled={removeButtonDisabled}
+                            className="btn btn-primary list-btn-remove"
+                            onClick={() => {removeAction(item._id)}}
+                        >Удалить
+                        </button>
+                    </li>
+                );
+            })
+            :  <p>Добавьте элементы в список!</p>
+        );
+    };
     return (
         <BootstrapContainer colClasses="col-6 mx-auto">
             <ol className={"list"}>
-                { list.length ?  list.map(({_id, value, type, fruit}) => {
-                        return (
-                        <ListElement
-                            key={_id}
-                            id={_id}
-                            valueItem={value + ' ' + type + ' ' + fruit}
-                            removeButtonDisabled={removeButtonDisabled}
-                            removeAction={removeAction}
-                            editAction={editAction}
-                            elemValueClasses={"list-element"}
-                            btnEditClasses={"btn btn-primary list-btn-edit"}
-                            btnRemoveClasses={"btn btn-primary list-btn-remove"}
-                        />
-                    );
-                    })
-                :  <p>Добавьте элементы в список!</p>
-                }
+                {createList()}
             </ol>
         </BootstrapContainer>
     );
@@ -44,9 +58,6 @@ List.propTypes = {
     list: PropTypes.arrayOf(
         PropTypes.shape({
             _id: PropTypes.string.isRequired, 
-            value: PropTypes.string.isRequired, 
-            type: PropTypes.string.isRequired, 
-            fruit: PropTypes.string.isRequired,
         })
     ).isRequired,
     removeButtonDisabled: PropTypes.bool,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import FormUsers from '../../components/FormUsers';
-import TableUsers from '../../components/TableUsers';
+import TableUsers from '../../components/Table';
 import Header from '../../components/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
 import { useCrudState } from '../../hooks';
