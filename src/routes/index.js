@@ -1,40 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Route,
-    BrowserRouter, 
+    Router, 
 } from 'react-router-dom';
+import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
-import { useAuthContext } from '../context/Auth';
 import { 
     routes,  
     authorizationRoutes,
     adminRoute
 } from './routes';
-import Authorization from '../components/Authorization';
 import RedirectToHome from '../components/RedirectTo';
+import { history } from '../helpers/history';
+import { getCurrUser } from '../helpers/getEntityFromState';
+import { alertActions } from '../actions';
 
-export default function Router(props) {
-    const { isLogin, isAdmin } = useAuthContext();
+export default () => {
+    const user = useSelector( getCurrUser, shallowEqual);
+    const dispatch = useDispatch();
 
+    useEffect(() => {
+        history.listen((location, action) => {
+            dispatch(alertActions.clear());
+        });
+    }, [dispatch]);
+    
     return (
-        <BrowserRouter>
-            {routes.map( route => {
-                const component = route.isPrivate ? 
-                Authorization(route.component)
-                :route.component;
-                
+        <Router history={history}>
+            {routes.map( route => {                
                 return( 
                     <Route
                         key={route.path}
                         exact={route.isExact}
                         path={route.path}
-                        component={component}
-                        AuthContextValue={props.AuthContextValue}
+                        component={route.component}
                     />
                 );
             })}
             {authorizationRoutes.map( route => {
-                const component = isLogin() ? RedirectToHome: route.component;
+                const component = user ? RedirectToHome: route.component;
                 return( 
                     <Route
                         key={route.path}
@@ -45,12 +49,12 @@ export default function Router(props) {
                 );
             })
             }
-            {isAdmin() && <Route
+            {user && user.role === 'admin' && <Route
                 key={adminRoute.path}
                 exact={adminRoute.isExact}
                 path={adminRoute.path}
-                component={Authorization(adminRoute.component)}
+                component={adminRoute.component}
             />}
-        </BrowserRouter>
+        </Router>
     );
-}
+};

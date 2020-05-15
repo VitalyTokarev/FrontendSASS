@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ee from 'event-emitter';
 
 import './index.css';
-import { NotificationContext } from '../../context/Notification';
+import { NotificationContext } from '../../context/NotificationContext';
 
 const emitter = new ee();
-
-const notify = msg => {
-    emitter.emit('notification' , msg);
-};
 
 export default WrappedComponent => {
     return props => {
@@ -48,6 +44,11 @@ export default WrappedComponent => {
                 }, 500)
             }
         }, [style]);
+
+        const notify = useCallback(
+            msg => {
+                emitter.emit('notification' , msg);
+        },[]);
 
         return(
             <React.Fragment>

@@ -1,15 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import BootstrapContainer from '../BootstrapContainer';
 import TableRow from './TableRow';
 
-export default props => {
-    const {
-        list,
-        removeButtonDisabled,
-        removeAction,
-        editAction
-    } = props;
+const TableUsers = ({
+    list,
+    removeButtonDisabled,
+    removeAction,
+    editAction
+}) => {
 
     const createTableContent = () => {
         let count = 0;
@@ -52,4 +52,24 @@ export default props => {
             </table>
         </BootstrapContainer>
     );
-}
+};
+
+TableUsers.defaultProps = {
+    removeButtonDisabled: false,
+};
+
+TableUsers.propTypes = {
+    list: PropTypes.arrayOf(
+        PropTypes.shape({
+            _id: PropTypes.string.isRequired, 
+            name: PropTypes.string.isRequired, 
+            email: PropTypes.string.isRequired, 
+            role: PropTypes.string.isRequired,
+        })
+    ).isRequired,
+    removeButtonDisabled: PropTypes.bool,
+    removeAction: PropTypes.func.isRequired,
+    editAction: PropTypes.func.isRequired,
+};
+
+export default TableUsers;

@@ -1,16 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-export default props => {
-    const {
-        index,
-        _id,
-        name,
-        email,
-        role,
-        editAction,
-        removeButtonDisabled,
-        removeAction,
-    } = props;
+const TableRow = ({
+    index,
+    _id,
+    name,
+    email,
+    role,
+    editAction,
+    removeButtonDisabled,
+    removeAction,
+}) => {
 
     return(
         <tr className="text-center">
@@ -36,4 +36,21 @@ export default props => {
             </td>
         </tr>
     );
-}
+};
+
+TableRow.defaultProps = {
+    removeButtonDisabled: false,
+};
+
+TableRow.propTypes = {
+    _id: PropTypes.string.isRequired,
+    index: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+    role: PropTypes.string.isRequired,
+    removeButtonDisabled: PropTypes.bool,
+    removeAction: PropTypes.func.isRequired,
+    editAction: PropTypes.func.isRequired,
+};
+
+export default TableRow;

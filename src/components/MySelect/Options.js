@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-export default ( { options, handleChangeMySelect, style } ) => {
+
+const Options = ( { options, handleChangeMySelect, style } ) => {
 
     return (
         ReactDOM.createPortal(
@@ -25,4 +27,16 @@ export default ( { options, handleChangeMySelect, style } ) => {
             document.body
         )
     );    
-}
+};
+
+Options.defaultProps = {
+    options: [],
+};
+
+Options.propTypes = {
+    options: PropTypes.arrayOf(PropTypes.string), 
+    handleChangeMySelect: PropTypes.func.isRequired, 
+    style: PropTypes.object.isRequired,
+};
+
+export default Options;

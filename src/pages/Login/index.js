@@ -1,75 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import { useAuthContext } from '../../context/Auth';
-import { useNotificationContext } from '../../context/Notification';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
-import useFieldState from '../../hooks/useFieldState';
+import { useFieldsState } from '../../hooks';
+import { login } from '../../actions';
+import { getAlertMessage } from '../../helpers/getEntityFromState';
+import { useNotificationContext } from '../../context/NotificationContext';
 
-export default ( { history } ) => {
-    const [ email, handleChangeEmail, errorTextEmail, setErrorEmail ] = useFieldState();
-    const [ password, handleChangePassword, errorTextPassword, setErrorPassword] = useFieldState();
+const INITIAL_FILEDS_VALUES = {
+    email: '',
+    password: '',
+};
 
-    const [user, setUser] = useState({});
+const Login = () => {
+    const [ user, handleChange, errorsText, setErrors ] = useFieldsState(INITIAL_FILEDS_VALUES);
+    
 
-    const { setUserData } = useAuthContext();
+    const dispatch = useDispatch();
+    const boundLogin = useCallback( 
+        user => dispatch(login(user)
+        ), 
+        [dispatch]
+    );
 
     const { notify } = useNotificationContext();
+    const errMessage = useSelector(getAlertMessage, shallowEqual);
 
     useEffect(() => {
-        setUser({
-            email,
+        if (errMessage) {
+            notify(errMessage);
+        }
+    }, [errMessage, notify]);
+
+    const validation = useCallback(() => {
+        const password = checkEmptyAndLength(user.password);
+        const email = validationEmail(user.email);
+
+        setErrors({
             password,
+            email,
         });
-    }, [password, email]);
 
-    const login = async user => {
-        const userData = btoa(user.email) + ':' + btoa(user.password);
+        return !password && !email;
+    
+        }, 
+        [setErrors, user.email, user.password]
+    );
 
-        const response = await fetch('/user/login', { 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                authorization: JSON.stringify( { user: userData } ),
-            },
-        });
-        
-        if (response.ok) {
-            const userData = await response.json();
+    const submitAction = useCallback(
+        event => {
+            event.preventDefault();
 
-            setUserData(userData.token);
-            history.push('/');
-            return;
-        }
-
-        if (response.status === 403) {
-            setErrorEmail( 'Введен неверный почтовый адрес или пароль!');
-            setErrorPassword( ' ' );
-            return;
-        }
-        
-        notify('Ошибка HTTP:' + response.status);
-    };
-
-    const validation = () => {
-        const validPassword = checkEmptyAndLength(password);
-        const validEmail = validationEmail(email);
-
-        setErrorPassword(validPassword);
-        setErrorEmail(validEmail);
-
-        return !validPassword && !validEmail;
-    };
-
-    const submitAction = event => {
-        event.preventDefault();
-
-        if ( !validation() ) { return; }
-        login(user);
-    };
+            if ( !validation() ) { return; }
+            boundLogin(user);
+        }, 
+        [ user, validation, boundLogin]
+    );
 
     return (
         <React.Fragment>
@@ -79,16 +69,16 @@ export default ( { history } ) => {
                     <Input
                         title={'Введите e-mail:'}
                         name={"email"}
-                        handleChange={handleChangeEmail}
-                        value={email}
-                        errorText={errorTextEmail}
+                        handleChange={handleChange}
+                        value={user.email}
+                        errorText={errorsText.email}
                     />
                     <Input
                         title={"Введите пароль:"}
                         name={"password"}
-                        handleChange={handleChangePassword}
-                        value={password}
-                        errorText={errorTextPassword}
+                        handleChange={handleChange}
+                        value={user.password}
+                        errorText={errorsText.password}
                         type="password"
                     />
                     <Link to="/signup">
@@ -104,4 +94,6 @@ export default ( { history } ) => {
             </BootstrapContainer>
         </React.Fragment>
     );
-}
+};
+
+export default Login;

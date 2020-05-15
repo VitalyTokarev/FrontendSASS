@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import FormToDo from '../../components/FormToDo';
 import List from '../../components/List';
 import Header from '../../components/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
-import useCrudState  from '../../hooks/useCrudState';
+import { useCrudState }  from '../../hooks';
+import { historyProps } from '../../helpers/constants';
 
 const PATH_CRUD = [ '/object/create', '/object', '/object/update', '/object/delete' ];
 
@@ -13,7 +14,7 @@ const INITIAL_EDIT_STATE = {
     editObject: null,
 };
 
-export default ( { history }) => {
+const Home = ( { history }) => {
     const [editState, setEditState] = useState(INITIAL_EDIT_STATE);
 
     const [
@@ -24,33 +25,41 @@ export default ( { history }) => {
         deleteObjectFromServer,
     ] = useCrudState(PATH_CRUD);
 
+    const _isMounted = useRef(true);
+
     useEffect(() => {
-        getObjectsFromServer();
+        return () => _isMounted.current = false;
+    }, []);
+
+    useEffect(() => {
+        getObjectsFromServer(_isMounted);
     }, [getObjectsFromServer]);
 
-    const getIdEditObjecId = id => {
-        const editObject = getEditElement(id, '_id', objects);
+    const getIdEditObjecId = useCallback(
+        id => {
+            const editObject = getEditElement(id, '_id', objects);
 
-        setEditState({
-            removeButtonDisabled: true,
-            editObject,
-        });
-    };
+            setEditState({
+                removeButtonDisabled: true,
+                editObject,
+            });
+    }, [objects]);
 
-    const getData = object => {
-        if (editState.editObject !== null) {
-            return editObjectAtServer(object).then(
-                success => {
-                    if ( success ) {
-                        setEditState(INITIAL_EDIT_STATE);
+    const getData = useCallback(
+        object => {
+            if (editState.editObject !== null) {
+                return editObjectAtServer(object).then(
+                    success => {
+                        if ( success ) {
+                            setEditState(INITIAL_EDIT_STATE);
+                        }
+                        return success;
                     }
-                    return success;
-                }
-            );
-        } else {
-            return createObjectAtServer(object);
-        }
-    };
+                );
+            } else {
+                return createObjectAtServer(object);
+            }
+    }, [createObjectAtServer, editObjectAtServer, editState.editObject]);
    
     return (
         <React.Fragment>
@@ -69,5 +78,9 @@ export default ( { history }) => {
             />
         </React.Fragment>
     );
-}
+};
+
+Home.propTypes = historyProps;
+
+export default Home;
 

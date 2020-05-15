@@ -1,20 +1,21 @@
 import React from "react";
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
-export default props => {
-    const {
-        name,
-        title,
-        handleChange,
-        placeholder,
-        options,
-        value,
-        errorText,
-        classLabel,
-        classErrorLabel 
-    } = props;
+const Select = ({
+    name,
+    title,
+    handleChange,
+    placeholder,
+    options,
+    value,
+    errorText,
+    classSelect,
+    classLabel,
+    classErrorLabel 
+}) => {
 
-    const classSelect = props.classSelect || classNames({
+    const classNameSelect = classSelect || classNames({
         'form-control': true,
         'red-border': !!errorText
     });
@@ -22,14 +23,14 @@ export default props => {
     return (
         <React.Fragment>
             {title && <label 
-                className={classLabel || 'label-input'}
+                className={classLabel}
                 htmlFor= {name}
             > {title} 
             </label>}
             <select
                 name={name}
                 onChange={handleChange}
-                className={classSelect}
+                className={classNameSelect}
                 value={value}
             >
                 <option value="" disabled>{placeholder}</option>
@@ -44,10 +45,33 @@ export default props => {
                 })}
             </select>
             <label 
-                className={classErrorLabel || 'label-error'} 
+                className={classErrorLabel} 
                 htmlFor={name}
             > {errorText} 
             </label>
         </React.Fragment>
         );
-}
+};
+
+Select.defaultProps = {
+    options: [],
+    title: '',
+    placeholder: '',
+    errorText: '',
+    classLabel: 'label-input',
+    classErrorLabel: 'label-error',
+};
+
+Select.propTypes = {
+    name: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    handleChange: PropTypes.func.isRequired,
+    placeholder: PropTypes.string,
+    options: PropTypes.arrayOf(PropTypes.string),
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    classLabel: PropTypes.string,
+    classErrorLabel: PropTypes.string,
+};
+
+export default Select;

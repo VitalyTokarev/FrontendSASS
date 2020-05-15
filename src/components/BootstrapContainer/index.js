@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-export default ( { colClasses, children } ) => {
+const BootstrapContainer = ( { colClasses, children } ) => {
      return (
         <div className="container">
             <div className="row">
@@ -11,3 +12,14 @@ export default ( { colClasses, children } ) => {
         </div>
     );
 };
+
+BootstrapContainer.defaultProps = {
+    colClasses: 'col-12 mx-auto'
+};
+
+BootstrapContainer.propTypes = {
+    colClasses: PropTypes.string,
+    children: PropTypes.element.isRequired,
+};
+
+export default BootstrapContainer;

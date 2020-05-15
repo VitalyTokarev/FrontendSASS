@@ -1,45 +1,73 @@
 import React from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
-export default props => {
-    const {
-        name,
-        title,
-        classLabel,
-        classErrorLabel, 
-        handleChange,
-        value,
-        errorText,
-        placeholder,
-        autoComplete,
-        removePlaceForErrorText,
-        type
-    } = props;
-
-    const classInput = props.classInput || classNames({
+const Input = ({
+    name,
+    title,
+    classInput,
+    classLabel,
+    classErrorLabel, 
+    handleChange,
+    value,
+    errorText,
+    placeholder,
+    autoComplete,
+    removePlaceForErrorText,
+    type
+}) => {
+    const classNameInput = classInput || classNames({
         'input': true,
         'red-border': !!errorText
     });
 
     return (
         <React.Fragment>
-            {title && <label className={classLabel || 'label-input'}
+            {title && <label className={classLabel}
                 htmlFor={name}
             > {title}
             </label>}
             <input onChange={handleChange}
                 value={value}
                 name={name}
-                className={classInput}
+                className={classNameInput}
                 placeholder={placeholder}
-                autoComplete={autoComplete || 'off'}
-                type={type || 'text'}
+                autoComplete={autoComplete}
+                type={type}
             />
             { !removePlaceForErrorText && <label
-                className={classErrorLabel || 'label-error'}
+                className={classErrorLabel}
                 htmlFor={name}
             > {errorText}
             </label>}
         </React.Fragment>
     );
-}
+};
+
+Input.defaultProps = {
+    title: '',
+    classLabel: 'label-input',
+    autoComplete: 'off',
+    type: 'text',
+    classErrorLabel: 'label-error',
+    removePlaceForErrorText: false,
+    errorText: '',
+    placeholder: '',
+};
+
+Input.propTypes = {
+    name: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    classInput: PropTypes.string,
+    classLabel: PropTypes.string,
+    classErrorLabel: PropTypes.string, 
+    handleChange: PropTypes.func.isRequired,
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    placeholder: PropTypes.string,
+    autoComplete: PropTypes.string,
+    removePlaceForErrorText: PropTypes.bool,
+    type: PropTypes.string,
+};
+
+export default Input;

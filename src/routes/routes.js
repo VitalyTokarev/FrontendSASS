@@ -1,23 +1,23 @@
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
-import AdminPanel from '../pages/AdminPanel'
+import AdminPanel from '../pages/AdminPanel';
+import Autorization from '../components/Authorization';
 
 export const routes = [
     {
         isExact: true,
         path: '/',
         name: 'Home',
-        component: Home,
-        isPrivate: true,
+        component: Autorization(Home),
     },
+
 ];
 
 export const adminRoute = {
     path: '/admin_panel',
     name: 'AdminPanel',
     component: AdminPanel,
-    isPrivate: true,
 }
 
 export const authorizationRoutes = [

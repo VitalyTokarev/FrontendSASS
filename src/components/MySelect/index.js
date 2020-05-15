@@ -1,36 +1,37 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 import './index.css';
 import Input from '../Input';
 import Button from '../Button';
 import Options from './Options';
-import useFieldState from '../../hooks/useFieldState';
+import { useFieldsState } from '../../hooks';
 
-export default props => {
-    const {
-        value,
-        name,
-        title,
-        handleChange,
-        placeholder,
-        autoComplete,
-        errorText, 
-        classSelect,
-        classLabel,
-        classErrorLabel            
-    } = props;
+const MySelect = ({
+    options,
+    value,
+    name,
+    title,
+    handleChange,
+    placeholder,
+    autoComplete,
+    errorText, 
+    classSelect,
+    classLabel,
+    classErrorLabel
+}) => {
 
     const [openOptions, setOpenOptions] = useState(false);
 
-    const [options, setOptions] = useState({
-        optionsSelect: props.options,
-        searchOptions: props.options, 
+    const [optionsObject, setOptionsObjects] = useState({
+        optionsSelect: options,
+        searchOptions: options, 
     });
 
     const [focusAppearance, setFocusAppearance] = useState(false);
 
-    const [inputVlaue, handleChangeInput, , , , setInputValue] = useFieldState();
+    const [input, handleChangeInput, , , , setInputValue] = useFieldsState();
 
     const [styleOptions, setStyleOptions] = useState({});
 
@@ -50,7 +51,7 @@ export default props => {
     }, [openOptions]);
 
     useEffect(() => {
-        setInputValue(value)
+        setInputValue( {value} );
         // eslint-disable-next-line
     }, [value]);
 
@@ -70,52 +71,58 @@ export default props => {
         });
     };
 
-    const outsideClickOptionsListener = event => {
-        if( !mySelectRef.current ) { return; }
-        if ( !mySelectRef.current.contains(event.target) ) { 
-             document.removeEventListener('click', outsideClickOptionsListener);
+    const outsideClickOptionsListener = useCallback(
+        event => {
+            if( !mySelectRef.current ) { return; }
+            if ( !mySelectRef.current.contains(event.target) ) { 
+                document.removeEventListener('click', outsideClickOptionsListener);
+                setOpenOptions(false);
+                setFocusAppearance(false);
+            }
+    }, []);
+
+    const сloseOnBlurOptions = useCallback(
+        () => {
+            document.addEventListener('click', outsideClickOptionsListener);
+    }, [outsideClickOptionsListener]);
+
+    const openOnBtnArrow = useCallback(
+        () => {
+
+            if (focusAppearance === true) {
+                setFocusAppearance(false);
+                return;
+            }
+
+            if (!openOptions) {
+                setOpenOptions(true);
+                сloseOnBlurOptions();
+
+                return;
+            }
             setOpenOptions(false);
-            setFocusAppearance(false);
-        }
-    };
 
-    const сloseOnBlurOptions = () => {
-        document.addEventListener('click', outsideClickOptionsListener);
-    };
+            document.removeEventListener('click', outsideClickOptionsListener);
+    }, [focusAppearance, openOptions, outsideClickOptionsListener, сloseOnBlurOptions]);
 
-    const openOnBtnArrow = () => {
-
-        if (focusAppearance === true) {
-            setFocusAppearance(false);
-            return;
-        }
-
-        if (!openOptions) {
+    const openOnFocusOptions = useCallback (
+        () => {
             setOpenOptions(true);
+            setFocusAppearance(true);
+
             сloseOnBlurOptions();
+    }, [сloseOnBlurOptions]);
 
-            return;
-        }
-        setOpenOptions(false);
-
-        document.removeEventListener('click', outsideClickOptionsListener);
-    };
-
-    const openOnFocusOptions= () => {
-        setOpenOptions(true);
-        setFocusAppearance(true);
-
-        сloseOnBlurOptions();
-    };
-
-    const handleOnClickOption = event => {
-        if (inputVlaue !== event.target.textContent ) {
-            event.target.value = event.target.textContent;
-            handleChange(event);
-        }
-        setOpenOptions(false);
-        document.removeEventListener('click', outsideClickOptionsListener);
-    };
+    const handleOnClickOption = useCallback(
+        event => {
+            if (input.value !== event.target.textContent ) {
+                event.target.value = event.target.textContent;
+                event.target.name = name;
+                handleChange(event);
+            }
+            setOpenOptions(false);
+            document.removeEventListener('click', outsideClickOptionsListener);
+    }, [handleChange, input.value, name, outsideClickOptionsListener]);
 
     const searchOptions = (subString = '', arrSearch = []) => {
         const newArrOption = [];
@@ -130,14 +137,15 @@ export default props => {
         return newArrOption;
     };
 
-    const handleSearchOptions = event => {
-        const foundOptions = searchOptions(event.target.value, options.optionsSelect);
-        setOptions( state => ({
-            ...state,
-            searchOptions: foundOptions,
-        }));
-        handleChangeInput(event);
-    };
+    const handleSearchOptions = useCallback(
+        event => {
+            const foundOptions = searchOptions(event.target.value, optionsObject.optionsSelect);
+            setOptionsObjects( state => ({
+                ...state,
+                searchOptions: foundOptions,
+            }));
+            handleChangeInput(event);
+    }, [handleChangeInput, optionsObject.optionsSelect]);
 
     const classArrowbtn = classNames({
         'btn-arrow': true,
@@ -154,13 +162,13 @@ export default props => {
     return (
         <React.Fragment>
             {title &&<label
-                className={classLabel ||'label-input'}
+                className={classLabel}
                 htmlFor={name}
             >
                 {title}
             </label>}
             <div
-                className={classSelect || 'my-select'}
+                className={classSelect}
                 onFocus={openOnFocusOptions}    
                 tabIndex="0"
                 ref={mySelectRef}
@@ -174,22 +182,49 @@ export default props => {
                     name={name}
                     placeholder={placeholder}
                     handleChange={handleSearchOptions}
-                    value={inputVlaue}
+                    value={input.value}
                     classInput={classInput}
                     autoComplete={autoComplete}
                     removePlaceForErrorText={true}
                 />
                 {openOptions && <Options
-                    options={options.searchOptions}
+                    options={optionsObject.searchOptions}
                     handleChangeMySelect={handleOnClickOption}
                     style={styleOptions}
                 />}
             </div>
             <label 
-                className={classErrorLabel ||'label-error'} 
+                className={classErrorLabel} 
                 htmlFor={name}
             > {errorText} 
             </label>
         </React.Fragment>
     );
-}
+};
+
+MySelect.defaultProps = {
+    options: [],
+    title: '',
+    placeholder: '',
+    autoComplete: 'off',
+    errorText: '',
+    classSelect: 'my-select',
+    classLabel: 'label-input',
+    classErrorLabel: 'label-error',
+};
+
+MySelect.propTypes = {
+    options: PropTypes.arrayOf(PropTypes.string),
+    value: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    handleChange: PropTypes.func.isRequired,
+    placeholder: PropTypes.string,
+    autoComplete: PropTypes.string,
+    errorText: PropTypes.string, 
+    classSelect: PropTypes.string,
+    classLabel: PropTypes.string,
+    classErrorLabel: PropTypes.string,
+};
+
+export default MySelect;

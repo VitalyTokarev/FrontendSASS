@@ -1,11 +1,13 @@
 .notification {
-    background-color: #007bff;
-    color: white;
-    padding: 1rem;
     position: absolute;
+    max-width: 25%;
     top: 1rem;
     right: 1rem;
     z-index: 999;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    padding: 1rem;
     transition: top 0.5s ease;
 }
 

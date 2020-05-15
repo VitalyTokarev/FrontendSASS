@@ -1,15 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import ListElement from './ListElement';
 import BootstrapContainer from '../BootstrapContainer';
 
-export default props => {
-    const {
-        list,
-        removeButtonDisabled,
-        removeAction,
-        editAction
-    } = props;
+const List = ({
+    list,
+    removeButtonDisabled,
+    removeAction,
+    editAction
+}) => {
 
     return (
         <BootstrapContainer colClasses="col-6 mx-auto">
@@ -34,4 +34,24 @@ export default props => {
             </ol>
         </BootstrapContainer>
     );
-}
+};
+
+List.defaultProps = {
+    removeButtonDisabled: false,
+};
+
+List.propTypes = {
+    list: PropTypes.arrayOf(
+        PropTypes.shape({
+            _id: PropTypes.string.isRequired, 
+            value: PropTypes.string.isRequired, 
+            type: PropTypes.string.isRequired, 
+            fruit: PropTypes.string.isRequired,
+        })
+    ).isRequired,
+    removeButtonDisabled: PropTypes.bool,
+    removeAction: PropTypes.func.isRequired,
+    editAction: PropTypes.func.isRequired,
+};
+
+export default List;

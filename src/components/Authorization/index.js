@@ -1,15 +1,17 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import { useAuthContext } from "../../context/Auth";
+import { useSelector, shallowEqual } from 'react-redux';
+
+import { getLoggedIn } from '../../helpers/getEntityFromState'
 
 export default WrappedComponent => {
-    return function Autorization(props) {
-      const { isLogin } = useAuthContext();  
-      
-      return (isLogin() ? 
+    return props => {
+      const isLogin = useSelector( getLoggedIn, shallowEqual ); 
+
+      return (isLogin ? 
         <WrappedComponent {...props}/>
         :
         <Redirect to='/login' />
-      )
+      );
     };
 }

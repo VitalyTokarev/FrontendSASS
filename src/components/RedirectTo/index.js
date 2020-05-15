@@ -1,8 +1,19 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-export default ( { pathTo } ) => {
+const RedirectTo = ( { pathTo } ) => {
     return (
-        <Redirect to={pathTo || '/'}/>
+        <Redirect to={pathTo}/>
     );
 };
+
+RedirectTo.defaultProps = {
+    pathTo: '/',
+};
+
+RedirectTo.propTypes = {
+    pathTo: PropTypes.string,
+};
+
+export default RedirectTo;
