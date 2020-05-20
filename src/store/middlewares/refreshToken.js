@@ -29,10 +29,10 @@ export const refreshTokenMiddleware = ({ dispatch, getState }) => {
 
                 if ( tokenIsExpried( getExpireDate(state.token) ) ) {
  
-                    if ( !state.isRequest ) {
+                    if ( !state.refreshTokenPromise ) {
                         return refreshToken(state.token, dispatch).then( () => next(action));
                     } else {
-                        return state.isRequest.then(() => next(action) );
+                        return state.refreshTokenPromise.then(() => next(action) );
                     }
                 }
             }

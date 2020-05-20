@@ -17,7 +17,7 @@ const initialState = user ? { ...user, loggedIn: true } : {};
 export const auth = (state = initialState, action) => {
   switch (action.type) {
     case authConstants.AUTH_REQUEST:
-      return Object.assign({}, state, { isRequest: action.payload} );
+      return Object.assign({}, state, { refreshTokenPromise: action.payload} );
     case authConstants.AUTH_SUCCESS:
       return {
         ...action.payload,
