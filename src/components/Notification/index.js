@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ee from 'event-emitter';
 
 import './index.css';
@@ -11,6 +11,8 @@ export default WrappedComponent => {
         const [style, setStyle] = useState({top: -100 + 'px'});
         const [msg, setMsg] = useState('');
         const [visible, setVisible] = useState(false);
+
+        const windowOffset = useRef(0);
 
         useEffect(() => {          
             const onShow = msg => {
@@ -25,14 +27,15 @@ export default WrappedComponent => {
 
         useEffect(() => {
             if (visible) {
+                windowOffset.current = window.pageYOffset;
                 setTimeout(() => {
-                    setStyle({top: 16 + 'px'});
+                    setStyle({top: 16 + windowOffset.current + 'px'});
                 }, 100)
             }
         }, [visible]);
 
         useEffect(() => {
-            if (style.top === 16 + 'px') {
+            if (style.top === 16 + windowOffset.current + 'px') {
                 setTimeout(() => {
                   setStyle({top: -100 + 'px'});
                 }, 3000);

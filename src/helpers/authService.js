@@ -80,42 +80,19 @@ const signup = async (name, email, password) => {
     .then(setUser);
 };
 
-/*const getExpireDate = token => {
-    if (!token) { return null; }
-
-    let jwt = {};
-    try{
-        jwt = JSON.parse(atob(token.split('.')[1]));
-    } catch(e) { }
-
-    if (jwt.exp) {
-        return jwt.exp * 1000;
-    }
-
-    return null;       
-}
-
-const tokenIsExpried = dateExpire => {
-    if ( !dateExpire ) { return false; }
-
-    return Date.now() > dateExpire;
-};*/
 
 const refreshToken = async token => {
-        if ( !token )  { return Promise.reject(401); }
+    if ( !token )  { return Promise.reject(401); }
+    const requestOptons = {
+        method: 'POST',
+        headers: {
+            authorization: JSON.stringify( { token } ),
+        },
+    };
 
-       // if ( tokenIsExpried( getExpireDate(token) )) {
-        const requestOptons = {
-            method: 'POST',
-            headers: {
-                authorization: JSON.stringify( { token } ),
-            },
-        };
-
-        return fetch('/update_token', requestOptons)
-        .then(handleResponseRefreshTokens)
-        .then(setUser);
-       // } return Promise.reject('Не требуется обновление!');
+    return fetch('/update_token', requestOptons)
+    .then(handleResponseRefreshTokens)
+    .then(setUser);
 };
 
 export const authService = {

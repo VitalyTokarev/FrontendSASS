@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch} from 'react-redux';
 
 import BootstrapContainer from '../../components/BootstrapContainer'; 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
-import { signup } from '../../actions'; 
-import { getAlertMessage } from '../../helpers/getEntityFromState';
-import { useNotificationContext } from '../../context/NotificationContext';
+import { signup } from '../../store/flows'; 
 
 const INITIAL_FILEDS_VALUES = {
     name: '',
@@ -30,15 +28,6 @@ const Signup = () => {
         user => dispatch(signup(user)),
         [dispatch]
     );
-
-    const { notify } = useNotificationContext();
-    const errMessage = useSelector(getAlertMessage, shallowEqual);
-
-    useEffect(() => {
-        if (errMessage) {
-            notify(errMessage);
-        }
-    }, [errMessage, notify]);
 
     const validation = useCallback (
         () => {

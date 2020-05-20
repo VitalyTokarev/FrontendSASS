@@ -1,4 +1,7 @@
 import PropTypes from 'prop-types';
+import { createBrowserHistory } from 'history';
+
+export const history = createBrowserHistory();
 
 export const INITIAL_TITLE_DATA = {
     nameSubmitBtn: 'Добавить',
@@ -10,15 +13,3 @@ export const historyProps = {
         push: PropTypes.func.isRequired
     }).isRequired,
 }; 
-
-export const authConstants = {
-    AUTH_SUCCESS: 'USERS_AUTH_SUCCESS',
-    AUTH_FAILURE: 'USERS_AUTH_FAILURE',
-    
-    LOGOUT: 'USERS_LOGOUT',
-};
-
-export const alertConstants = {
-    ERROR: 'ALERT_ERROR',
-    CLEAR: 'ALERT_CLEAR',
-};

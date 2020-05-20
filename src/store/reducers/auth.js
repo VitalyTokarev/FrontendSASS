@@ -1,4 +1,4 @@
-import { authConstants } from '../helpers/constants';
+import { authConstants } from '../actionsTypes';
 
 const getUserFromLocalStorage = () => {
   let currUser = null;
@@ -12,14 +12,16 @@ const getUserFromLocalStorage = () => {
 
 const user = getUserFromLocalStorage();
 
-const initialState = user ? { loggedIn: true, user } : {};
+const initialState = user ? { ...user, loggedIn: true } : {};
 
-export const autentication = (state = initialState, action) => {
+export const auth = (state = initialState, action) => {
   switch (action.type) {
+    case authConstants.AUTH_REQUEST:
+      return Object.assign({}, state, { isRequest: action.payload} );
     case authConstants.AUTH_SUCCESS:
       return {
+        ...action.payload,
         loggedIn: true,
-        user: { ...action.user }
       };
     case authConstants.AUTH_FAILURE:
       return {};

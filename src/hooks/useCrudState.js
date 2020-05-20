@@ -1,10 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import { useEntitiesState } from './useEntitiesState';
-import { getToken } from '../helpers/getEntityFromState';
-import { logout, refreshToken } from '../actions';
-import { useNotificationContext } from '../context/NotificationContext';
 
 export const useCrudState = initialValue => {
     const [         
@@ -16,21 +12,6 @@ export const useCrudState = initialValue => {
     ] = useEntitiesState();
 
     const [pathCrud] = useState(initialValue);
-
-    const token = useSelector(getToken, shallowEqual);
-
-    const { notify } = useNotificationContext();
-    
-    const dispatch = useDispatch();
-
-    const boundLogout = useCallback(
-        () => dispatch(logout()),
-        [dispatch],
-    );
-    const boundRefreshToken = useCallback(
-        token => dispatch(refreshToken(token)),
-        [dispatch],
-    );
 
     const createEntityAtServer = useCallback(
         async entity => {
@@ -48,14 +29,12 @@ export const useCrudState = initialValue => {
                 return true;
             }
 
-            if (response.status === 401) { boundRefreshToken(token); }
-            if (response.status === 403) { boundLogout(); }
-
-            notify('Ошибка HTTP:' + response.status);
+            if (response.status === 401) { }
+            if (response.status === 403) { }
             
             return false;
         }, 
-        [addEntity, boundRefreshToken, boundLogout, pathCrud, token, notify]
+        [addEntity, pathCrud]
     );
 
     const getEntityFromServer = useCallback(
@@ -69,13 +48,12 @@ export const useCrudState = initialValue => {
                     setEntities(entities);
                     return;
                 } 
-                if (response.status === 401) { boundRefreshToken(token); }
-                if (response.status === 403) { boundLogout(); }
+                if (response.status === 401) { }
+                if (response.status === 403) { }
 
-                notify('Ошибка HTTP:' + response.status);
             }
         }, 
-        [boundLogout, pathCrud, setEntities, boundRefreshToken, token, notify]
+        [pathCrud, setEntities]
     );
 
     const editEntityAtServer = useCallback(
@@ -93,14 +71,12 @@ export const useCrudState = initialValue => {
                 return true;
             }
 
-            if (response.status === 401) { boundRefreshToken(token); }
-            if (response.status === 403) { boundLogout(); }
-
-            notify('Ошибка HTTP:' + response.status);
+            if (response.status === 401) { }
+            if (response.status === 403) { }
 
             return false;
         }, 
-        [boundRefreshToken, editEntity, boundLogout, pathCrud, token, notify]
+        [editEntity, pathCrud]
     );
 
     const deleteEntityFromServer = useCallback(
@@ -118,15 +94,12 @@ export const useCrudState = initialValue => {
                 removeEntity(id);
                 return true;
             }
-
-            if (response.status === 401) { boundRefreshToken(token); }
-            if (response.status === 403) { boundLogout(); }
-
-            notify('Ошибка HTTP:' + response.status);
+            if (response.status === 401) { }
+            if (response.status === 403) { }
 
             return false;
         }, 
-        [boundRefreshToken, boundLogout, pathCrud, removeEntity, token, notify]
+        [pathCrud, removeEntity]
     );
 
     return [

@@ -4,14 +4,15 @@ import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import './index.css';
 import Button from '../Button';
-import { logout } from '../../actions';
+import { logout } from '../../store/flows';
 import { getCurrUser } from '../../helpers/getEntityFromState';
+import { history } from '../../helpers/constants';
 
-const Header = ( { history, disableViewUsers } ) => {
+const Header = ( { disableViewUsers } ) => {
     const redirectAction = useCallback(
         () => {
             history.push('/admin_panel');
-    }, [history]);
+    }, []);
 
     const dispatch = useDispatch();
     const boundLogout = useCallback(
@@ -40,9 +41,6 @@ Header.defaultProps = {
 };
 
 Header.propTypes = {
-    history: PropTypes.shape({
-        push: PropTypes.func.isRequired
-    }).isRequired,
     disableViewUsers: PropTypes.bool,
 };
 

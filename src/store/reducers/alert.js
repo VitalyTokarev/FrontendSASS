@@ -1,14 +1,14 @@
-import { alertConstants } from '../helpers/constants';
+import { alertConstants } from '../actionsTypes';
 
 export const alert = (state = {}, action) => {
   switch (action.type) {
     case alertConstants.SUCCESS:
       return {
-        message: action.message
+        ...action.payload
       };
     case alertConstants.ERROR:
       return {
-        message: action.message
+        message: action.payload
       };
     case alertConstants.CLEAR:
       return {};

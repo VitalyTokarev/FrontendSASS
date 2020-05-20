@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector, shallowEqual } from 'react-redux';
 
 import Select from '../Select';
 import Input from '../Input';
@@ -9,6 +10,8 @@ import BootstrapContainer from '../BootstrapContainer';
 import { checkEmptyAndLength } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
 import { INITIAL_TITLE_DATA } from '../../helpers/constants';
+import { getAlertMessageType } from '../../helpers/getEntityFromState';
+import { todoConstants} from '../../store/actionsTypes';
 
 const TYPE_OPTIONS = ['Тип 1', 'Тип 2', 'Тип 3', 'Тип 4'];
 
@@ -31,6 +34,7 @@ const FormToDo = ( {editObject, getData} ) => {
     ] = useFieldsState(INITIAL_FILEDS_VALUES);
 
     const [ titleData, setTitleData] = useState(INITIAL_TITLE_DATA);
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual)
 
     useEffect(() => {
         if ( editObject ) {
@@ -57,6 +61,14 @@ const FormToDo = ( {editObject, getData} ) => {
     // eslint-disable-next-line
     }, [editObject]);
 
+    useEffect(() => {
+        if ( messageSuccessType === todoConstants.ADD_TODO 
+            || messageSuccessType === todoConstants.UPDATE_TODO) {
+                resetValues();
+                setTitleData(INITIAL_TITLE_DATA);
+        }
+    }, [messageSuccessType, resetValues])
+
     const validation = useCallback(
         () => {
             const value = checkEmptyAndLength(object.value, 'строки', 5);
@@ -70,13 +82,9 @@ const FormToDo = ( {editObject, getData} ) => {
             });
 
             return !value && !type && !fruit;
-    }, [object.fruit, object.type, object.value, setErrors]); 
-
-    const handleClearForm = useCallback(
-        () => {
-            resetValues();
-            setTitleData(INITIAL_TITLE_DATA);
-    }, [resetValues]);
+        }, 
+        [object.fruit, object.type, object.value, setErrors]
+    ); 
 
     const submitAction = useCallback (
         event => {
@@ -86,13 +94,10 @@ const FormToDo = ( {editObject, getData} ) => {
                 return;
             }
 
-            getData( object )
-            .then( successCompletion => {
-                if (successCompletion) {
-                    handleClearForm();
-                }
-            });
-    }, [getData, handleClearForm, object, validation]);
+            getData( object );
+        }, 
+        [getData, object, validation]
+    );
     
     return (
         <BootstrapContainer colClasses="col-6 mx-auto">

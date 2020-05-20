@@ -1,86 +1,102 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import FormToDo from '../../components/FormToDo';
 import List from '../../components/List';
 import Header from '../../components/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
-import { useCrudState }  from '../../hooks';
-import { historyProps } from '../../helpers/constants';
-
-const PATH_CRUD = [ '/object/create', '/object', '/object/update', '/object/delete' ];
+import { todoCrud } from '../../store/flows';
+import { getAlertMessageType } from '../../helpers/getEntityFromState';
+import { todoConstants } from '../../store/actionsTypes';
 
 const INITIAL_EDIT_STATE = {
     removeButtonDisabled: false,
     editObject: null,
 };
 
-const Home = ( { history }) => {
+const Home = () => {
     const [editState, setEditState] = useState(INITIAL_EDIT_STATE);
 
-    const [
-        objects, 
-        createObjectAtServer, 
-        getObjectsFromServer, 
-        editObjectAtServer,
-        deleteObjectFromServer,
-    ] = useCrudState(PATH_CRUD);
+    const dispatch = useDispatch();
 
-    const _isMounted = useRef(true);
+    const todos = useSelector( state => state.todo, shallowEqual);
+
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual)
+
+    const boundGetTodos = useCallback( 
+        () => dispatch(todoCrud.getTodos()
+        ), 
+        [dispatch]
+    );
+
+    const boundCreateTodos = useCallback( 
+        todo => dispatch(todoCrud.createTodo(todo)
+        ), 
+        [dispatch]
+    );
+
+    const boundEditTodo = useCallback(
+        todo => dispatch(todoCrud.updateTodo(todo)
+        ),
+        [dispatch]
+    );
+
+    const boundDeleteTodo = useCallback(
+        id => dispatch(todoCrud.deleteTodo(id)
+        ),
+        [dispatch]
+    );
+    
+    useEffect(() => {
+        boundGetTodos();
+    }, [boundGetTodos]);
 
     useEffect(() => {
-        return () => _isMounted.current = false;
-    }, []);
+        if ( messageSuccessType === todoConstants.UPDATE_TODO ) {
+            setEditState({
+                removeButtonDisabled: false,
+                editTodo: null,
+            });
+        }
+    }, [messageSuccessType])
 
-    useEffect(() => {
-        getObjectsFromServer(_isMounted);
-    }, [getObjectsFromServer]);
-
-    const getIdEditObjecId = useCallback(
+    const getEditTodoId = useCallback(
         id => {
-            const editObject = getEditElement(id, '_id', objects);
-
+            const editTodo = getEditElement(id, '_id', todos);
             setEditState({
                 removeButtonDisabled: true,
-                editObject,
+                editTodo,
             });
-    }, [objects]);
+        }, 
+        [todos]
+    );
 
     const getData = useCallback(
-        object => {
+        todo => {
             if (editState.editObject !== null) {
-                return editObjectAtServer(object).then(
-                    success => {
-                        if ( success ) {
-                            setEditState(INITIAL_EDIT_STATE);
-                        }
-                        return success;
-                    }
-                );
+                boundEditTodo(todo);
             } else {
-                return createObjectAtServer(object);
+                boundCreateTodos(todo);
             }
-    }, [createObjectAtServer, editObjectAtServer, editState.editObject]);
+        }, 
+        [boundCreateTodos, boundEditTodo, editState.editObject]
+    );
    
     return (
         <React.Fragment>
-            <Header 
-                history={history}
-            />
+            <Header/>
             <FormToDo
                 getData={getData}
-                editObject={editState.editObject}
+                editObject={editState.editTodo}
             />
             <List
-                list={objects}
-                removeAction={deleteObjectFromServer}
-                editAction={getIdEditObjecId}
+                list={todos}
+                removeAction={boundDeleteTodo}
+                editAction={getEditTodoId}
                 removeButtonDisabled={editState.removeButtonDisabled}
             />
         </React.Fragment>
     );
 };
 
-Home.propTypes = historyProps;
-
 export default Home;
-

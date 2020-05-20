@@ -11,19 +11,29 @@ import {
     adminRoute
 } from './routes';
 import RedirectToHome from '../components/RedirectTo';
-import { history } from '../helpers/history';
-import { getCurrUser } from '../helpers/getEntityFromState';
-import { alertActions } from '../actions';
+import { history } from '../helpers/constants';
+import { getCurrUser, getAlertMessage } from '../helpers/getEntityFromState';
+import { alertActions } from '../store/actions';
+import { useNotificationContext } from '../context/NotificationContext';
 
 export default () => {
     const user = useSelector( getCurrUser, shallowEqual);
     const dispatch = useDispatch();
+
+    const { notify } = useNotificationContext();
+    const errMessage = useSelector(getAlertMessage, shallowEqual);
 
     useEffect(() => {
         history.listen((location, action) => {
             dispatch(alertActions.clear());
         });
     }, [dispatch]);
+
+    useEffect(() => {
+        if (errMessage) {
+            notify(errMessage);
+        }
+    }, [errMessage, notify]);
     
     return (
         <Router history={history}>
