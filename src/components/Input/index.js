@@ -23,11 +23,14 @@ const Input = ({
 
     return (
         <React.Fragment>
-            {title && <label className={classLabel}
+            {title && <label 
+                className={classLabel}
                 htmlFor={name}
             > {title}
             </label>}
-            <input onChange={handleChange}
+            <input 
+                id={name}
+                onChange={handleChange}
                 value={value}
                 name={name}
                 className={classNameInput}

@@ -31,7 +31,7 @@ const MySelect = ({
 
     const [focusAppearance, setFocusAppearance] = useState(false);
 
-    const [input, handleChangeInput, , , , setInputValue] = useFieldsState();
+    const [input, handleChangeInput, , , , setInputValue] = useFieldsState( { [name]: '' } );
 
     const [styleOptions, setStyleOptions] = useState({});
 
@@ -51,7 +51,11 @@ const MySelect = ({
     }, [openOptions]);
 
     useEffect(() => {
-        setInputValue( {value} );
+        setInputValue( 
+            { 
+                [name]: value
+            } 
+        );
         // eslint-disable-next-line
     }, [value]);
 
@@ -115,14 +119,14 @@ const MySelect = ({
 
     const handleOnClickOption = useCallback(
         event => {
-            if (input.value !== event.target.textContent ) {
+            if (input[name] !== event.target.textContent ) {
                 event.target.value = event.target.textContent;
                 event.target.name = name;
                 handleChange(event);
             }
             setOpenOptions(false);
             document.removeEventListener('click', outsideClickOptionsListener);
-    }, [handleChange, input.value, name, outsideClickOptionsListener]);
+    }, [handleChange, input, name, outsideClickOptionsListener]);
 
     const searchOptions = (subString = '', arrSearch = []) => {
         const newArrOption = [];
@@ -140,10 +144,12 @@ const MySelect = ({
     const handleSearchOptions = useCallback(
         event => {
             const foundOptions = searchOptions(event.target.value, optionsObject.optionsSelect);
+
             setOptionsObjects( state => ({
                 ...state,
                 searchOptions: foundOptions,
             }));
+
             handleChangeInput(event);
     }, [handleChangeInput, optionsObject.optionsSelect]);
 
@@ -182,7 +188,7 @@ const MySelect = ({
                     name={name}
                     placeholder={placeholder}
                     handleChange={handleSearchOptions}
-                    value={input.value}
+                    value={input[name]}
                     classInput={classInput}
                     autoComplete={autoComplete}
                     removePlaceForErrorText={true}

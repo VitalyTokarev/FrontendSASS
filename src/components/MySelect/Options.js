@@ -16,7 +16,9 @@ const Options = ( { options, handleChangeMySelect, style } ) => {
                     return (
                         <p  
                             key={item}
+                            role="option"
                             className="option"
+                            aria-selected={false}
                             onClick={handleChangeMySelect}
                         >{item}
                         </p>

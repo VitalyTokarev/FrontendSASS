@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector, shallowEqual } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import Input from '../Input';
@@ -7,6 +8,8 @@ import BootstrapContainer from '../BootstrapContainer';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
 import { INITIAL_TITLE_DATA } from '../../helpers/constants';
+import { getAlertMessageType } from '../../helpers/getEntityFromState';
+import { userConstants } from '../../store/actionsTypes';
 
 const INITIAL_FILEDS_VALUES = {
     name: '',
@@ -27,6 +30,8 @@ const FormUsers = ( { getData, editUser } ) => {
     const [ requiredPassword, setRequiredPassword ] = useState( true );  
     const [ titleData, setTitleData] = useState(INITIAL_TITLE_DATA);
 
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual);
+
     useEffect(() => {
         if (editUser) {
             const {
@@ -42,6 +47,7 @@ const FormUsers = ( { getData, editUser } ) => {
                 name,
                 email,
                 role,
+                password: '',
             });
 
             setRequiredPassword(false);
@@ -54,6 +60,16 @@ const FormUsers = ( { getData, editUser } ) => {
     // eslint-disable-next-line
     }, [editUser]);
 
+    useEffect(() => {
+        if ( messageSuccessType === userConstants.ADD_USER 
+            || messageSuccessType === userConstants.UPDATE_USER) {
+                setRequiredPassword(true);
+                resetFileds();
+                setTitleData(INITIAL_TITLE_DATA);
+        }
+        }, 
+        [messageSuccessType, resetFileds]
+    );
 
     const validation = useCallback (
         () => {
@@ -68,14 +84,9 @@ const FormUsers = ( { getData, editUser } ) => {
             });
 
             return !name && !password && !email;
-    }, [requiredPassword, setErrors, user.email, user.name, user.password]);
-
-    const handleClearForm = useCallback( 
-        () => {
-            resetFileds();
-            setTitleData(INITIAL_TITLE_DATA);
-            setRequiredPassword(true);
-    }, [resetFileds]);
+        },
+        [requiredPassword, setErrors, user.email, user.name, user.password]
+    );
 
     const submitAction = useCallback (
         event => {
@@ -85,13 +96,10 @@ const FormUsers = ( { getData, editUser } ) => {
                 return;
             }
 
-            getData( user )
-            .then( successCompletion => {
-                if (successCompletion) {
-                    handleClearForm();
-                }
-            });
-    }, [getData, handleClearForm, user, validation]);
+            getData( user );
+        }, 
+        [getData, user, validation]
+    );
 
     return (
         <BootstrapContainer colClasses="col-6 mx-auto">

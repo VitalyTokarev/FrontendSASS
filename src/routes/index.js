@@ -24,7 +24,7 @@ export default () => {
     const errMessage = useSelector(getAlertMessage, shallowEqual);
 
     useEffect(() => {
-        history.listen((location, action) => {
+        history.listen( () => {
             dispatch(alertActions.clear());
         });
     }, [dispatch]);

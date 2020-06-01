@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, shallowEqual } from 'react-redux';
 
-import Select from '../Select';
 import Input from '../Input';
 import Button from '../Button';
 import MySelect from '../MySelect';
@@ -34,7 +33,7 @@ const FormToDo = ( {editObject, getData} ) => {
     ] = useFieldsState(INITIAL_FILEDS_VALUES);
 
     const [ titleData, setTitleData] = useState(INITIAL_TITLE_DATA);
-    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual)
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual);
 
     useEffect(() => {
         if ( editObject ) {
@@ -55,7 +54,7 @@ const FormToDo = ( {editObject, getData} ) => {
 
             setTitleData({       
                 nameSubmitBtn: 'Редактировать',
-                title: `Редактировать пользователя №${index + 1}`,
+                title: `Редактировать объект №${index + 1}`,
             });
         }
     // eslint-disable-next-line
@@ -110,7 +109,7 @@ const FormToDo = ( {editObject, getData} ) => {
                 handleChange={handleChange}
                 value={object.value}
             />
-            <Select
+            <MySelect
                 title="Выберите тип: "
                 name="type"
                 value={object.type}

@@ -24,10 +24,11 @@ const Select = ({
         <React.Fragment>
             {title && <label 
                 className={classLabel}
-                htmlFor= {name}
+                htmlFor={name}
             > {title} 
             </label>}
             <select
+                id={name}
                 name={name}
                 onChange={handleChange}
                 className={classNameSelect}

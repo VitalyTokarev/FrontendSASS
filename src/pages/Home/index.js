@@ -21,7 +21,7 @@ const Home = () => {
 
     const todos = useSelector( state => state.todo, shallowEqual);
 
-    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual)
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual);
 
     const boundGetTodos = useCallback( 
         () => dispatch(todoCrud.getTodos()
@@ -29,7 +29,7 @@ const Home = () => {
         [dispatch]
     );
 
-    const boundCreateTodos = useCallback( 
+    const boundCreateTodo = useCallback( 
         todo => dispatch(todoCrud.createTodo(todo)
         ), 
         [dispatch]
@@ -76,10 +76,10 @@ const Home = () => {
             if (editState.editObject !== null) {
                 boundEditTodo(todo);
             } else {
-                boundCreateTodos(todo);
+                boundCreateTodo(todo);
             }
         }, 
-        [boundCreateTodos, boundEditTodo, editState.editObject]
+        [boundCreateTodo, boundEditTodo, editState.editObject]
     );
    
     return (

@@ -1,39 +1,64 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import FormUsers from '../../components/FormUsers';
 import TableUsers from '../../components/Table';
 import Header from '../../components/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
-import { useCrudState } from '../../hooks';
-import { historyProps } from '../../helpers/constants';
-
-const PATH_CRUD = [ '/users/create', '/users/show', '/users/update', '/users/delete' ];
+import { userCrud } from '../../store/flows';
+import { getAlertMessageType } from '../../helpers/getEntityFromState';
+import { userConstants } from '../../store/actionsTypes';
 
 const INITIAL_EDIT_STATE = {
     removeButtonDisabled: false,
     editUser: null,
 };
 
-const AdminPanel = ( { history } ) => {
+export default () => {
     const [editState, setEditState] = useState(INITIAL_EDIT_STATE);
 
-    const [
-        users, 
-        createUserAtServer, 
-        getUsersFromServer, 
-        editUserAtServer,
-        deleteUserFromServer,
-    ] = useCrudState(PATH_CRUD);
+    const dispatch = useDispatch();
 
-    const _isMounted = useRef(true);
+    const users = useSelector( state => state.user, shallowEqual);
 
-    useEffect(() =>{
-        return () => _isMounted.current = false;
-    }, []);
+    const messageSuccessType = useSelector(getAlertMessageType, shallowEqual);
+
+    const boundGetUsers = useCallback( 
+        () => dispatch(userCrud.getUsers()
+        ), 
+        [dispatch]
+    );
+
+    const boundCreateUser = useCallback( 
+        user => dispatch(userCrud.createUser(user)
+        ), 
+        [dispatch]
+    );
+
+    const boundEditUser = useCallback(
+        user => dispatch(userCrud.updateUser(user)
+        ),
+        [dispatch]
+    );
+
+    const boundDeleteUser = useCallback(
+        id => dispatch(userCrud.deleteUser(id)
+        ),
+        [dispatch]
+    );
 
     useEffect(() => {
-        getUsersFromServer(_isMounted);
-    }, [getUsersFromServer]);
+        boundGetUsers();
+    }, [boundGetUsers]);
+
+    useEffect(() => {
+        if ( messageSuccessType === userConstants.UPDATE_USER ) {
+            setEditState({
+                removeButtonDisabled: false,
+                editUser: null,
+            });
+        }
+    }, [messageSuccessType])
 
     const getIdEditUserId = useCallback(
         id => {
@@ -48,23 +73,15 @@ const AdminPanel = ( { history } ) => {
     const getData = useCallback(
         user => {
             if (editState.editUser !== null) {
-                return editUserAtServer(user).then(
-                    success => {
-                        if ( success ) {
-                            setEditState(INITIAL_EDIT_STATE);
-                        }
-                        return success;
-                    }
-                );
+                boundEditUser(user);
             } else {
-                return createUserAtServer(user);
+                boundCreateUser(user);
             }
-    }, [createUserAtServer, editState.editUser, editUserAtServer]);
+    }, [boundCreateUser, editState.editUser, boundEditUser]);
 
     return (
         <React.Fragment>
             <Header 
-                history={history}
                 disableViewUsers={true}
             />
             <FormUsers
@@ -73,15 +90,10 @@ const AdminPanel = ( { history } ) => {
             />
             <TableUsers
                 list={users}
-                removeAction={deleteUserFromServer}
+                removeAction={boundDeleteUser}
                 editAction={getIdEditUserId}
                 removeButtonDisabled={editState.removeButtonDisabled}
             />
         </React.Fragment>
     );
-
 };
-
-AdminPanel.propTypes = historyProps;
-
-export default AdminPanel;

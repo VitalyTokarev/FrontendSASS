@@ -1,20 +1,20 @@
 import { entityService } from '../../helpers/entityService';
-import { todoActions, alertActions } from '../actions';
-import { todoConstants } from '../actionsTypes';
+import { userActions, alertActions } from '../actions';
+import { userConstants } from '../actionsTypes';
 
-const createTodo = todo => {
+const createUser = user => {
     return dispatch => {
         dispatch(alertActions.clear());
-        entityService.createEntityAtServer('/object/create', todo)
+        entityService.createEntityAtServer('/users/create', user)
         .then(
             _id => { 
-                dispatch(todoActions.addTodo({
-                    ...todo,
+                dispatch(userActions.addUser({
+                    ...user,
                     _id
                 }));
                 dispatch(alertActions.success({
-                    type: todoConstants.ADD_TODO,
-                    message: 'Объект добавлен!'
+                    type: userConstants.ADD_USER,
+                    message: 'Пользователь добавлен!'
                 }));
             },
             error => {
@@ -24,13 +24,13 @@ const createTodo = todo => {
     };
 };
 
-const getTodos = () => {
+const getUsers = () => {
     return dispatch => {
         dispatch(alertActions.clear());
-        entityService.getEntityFromServer('/object')
+        entityService.getEntityFromServer('/users/show')
         .then(
-            todos => {
-                dispatch(todoActions.setTodos(todos));
+            users => {
+                dispatch(userActions.setUsers(users));
             },
             error => {
                 dispatch(alertActions.error(error));
@@ -39,35 +39,16 @@ const getTodos = () => {
     };
 };
 
-const updateTodo = todo => {
+const updateUser = user => {
     return dispatch => {
         dispatch(alertActions.clear());
-        entityService.editEntityAtServer('/object/update', todo)
-        .then(
-            () => { 
-                dispatch(todoActions.updateTodo(todo));
-                dispatch(alertActions.success({
-                    type: todoConstants.UPDATE_TODO,
-                    message: 'Объект обновлен!'
-                }));
-            },
-            error => {
-                dispatch(alertActions.error(error));
-            }
-        );
-    };
-};
-
-const deleteTodo = id => {
-    return dispatch => {
-        dispatch(alertActions.clear());
-        entityService.deleteEntityFromServer('/object/delete', id)
+        entityService.editEntityAtServer('/users/update', user)
         .then(
             () => { 
-                dispatch(todoActions.deleteTodo(id));
+                dispatch(userActions.updateUser(user));
                 dispatch(alertActions.success({
-                    type: todoConstants.DELETE_TODO,
-                    message: 'Объект удален!'
+                    type: userConstants.UPDATE_USER,
+                    message: 'Пользователь обновлен!'
                 }));
             },
             error => {
@@ -77,9 +58,28 @@ const deleteTodo = id => {
     };
 };
 
-export const todoCrud = {
-    createTodo,
-    getTodos,
-    updateTodo,
-    deleteTodo,
+const deleteUser = id => {
+    return dispatch => {
+        dispatch(alertActions.clear());
+        entityService.deleteEntityFromServer('/users/delete', id)
+        .then(
+            () => { 
+                dispatch(userActions.deleteUser(id));
+                dispatch(alertActions.success({
+                    type: userConstants.DELETE_USER,
+                    message: 'Пользователь удален!'
+                }));
+            },
+            error => {
+                dispatch(alertActions.error(error));
+            }
+        );
+    };
+};
+
+export const userCrud = {
+    createUser,
+    getUsers,
+    updateUser,
+    deleteUser,
 };
