@@ -30,7 +30,7 @@ const Header = ( { disableViewUsers } ) => {
                 handleOnClick={redirectAction}
                 btnClass={"btn btn-primary btn-admin"}
             />}
-            <span className="navigation-text">Привет, {user.name}!</span>
+            <span className="navigation-text">Привет, {user ? user.name : ''}!</span>
             <span className="navigation-link" onClick={boundLogout}>Выйти</span>
         </nav>
     );

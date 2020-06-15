@@ -89,7 +89,7 @@ export default () => {
                 editUser={editState.editUser}
             />
             <TableUsers
-                list={users}
+                list={users ? users : []}
                 removeAction={boundDeleteUser}
                 editAction={getIdEditUserId}
                 removeButtonDisabled={editState.removeButtonDisabled}

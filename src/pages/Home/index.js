@@ -90,7 +90,7 @@ const Home = () => {
                 editObject={editState.editTodo}
             />
             <List
-                list={todos}
+                list={todos ? todos: []}
                 removeAction={boundDeleteTodo}
                 editAction={getEditTodoId}
                 removeButtonDisabled={editState.removeButtonDisabled}

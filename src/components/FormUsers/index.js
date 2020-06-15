@@ -38,7 +38,6 @@ const FormUsers = ( { getData, editUser } ) => {
                 _id,
                 name,
                 email,
-                role,
                 index,
             } = editUser;
 
@@ -46,7 +45,6 @@ const FormUsers = ( { getData, editUser } ) => {
                 _id,
                 name,
                 email,
-                role,
                 password: '',
             });
 
