@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import FormUsers from '../../components/FormUsers';
-import TableUsers from '../../components/Table';
-import Header from '../../components/Header';
+import TableUsers from '../../components/commons/Table';
+import Header from '../../components/commons/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
 import { userCrud } from '../../store/flows';
 import { getAlertMessageType } from '../../helpers/getEntityFromState';

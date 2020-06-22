@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import FormToDo from '../../components/FormToDo';
-import List from '../../components/List';
-import Header from '../../components/Header';
+import List from '../../components/commons/List';
+import Header from '../../components/commons/Header';
 import { getEditElement } from '../../helpers/arrayMethods';
 import { todoCrud } from '../../store/flows';
 import { getAlertMessageType } from '../../helpers/getEntityFromState';

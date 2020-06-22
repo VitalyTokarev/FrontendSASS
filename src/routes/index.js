@@ -10,7 +10,7 @@ import {
     authorizationRoutes,
     adminRoute
 } from './routes';
-import RedirectToHome from '../components/RedirectTo';
+import RedirectToHome from '../components/commons/RedirectTo';
 import { history } from '../helpers/constants';
 import { getCurrUser, getAlertMessage } from '../helpers/getEntityFromState';
 import { alertActions } from '../store/actions';

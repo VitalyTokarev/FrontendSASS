@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import BootstrapContainer from '../../components/BootstrapContainer'; 
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import BootstrapContainer from '../../components/commons/BootstrapContainer'; 
+import Input from '../../components/commons/Input';
+import Button from '../../components/commons/Button';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
 import { login } from '../../store/flows';
@@ -55,15 +55,15 @@ const Login = () => {
                 <form >
                     <h1 className="text-center">Авторизация</h1>
                     <Input
-                        title={'Введите e-mail:'}
-                        name={"email"}
+                        title="Введите e-mail:"
+                        name="email"
                         handleChange={handleChange}
                         value={user.email}
                         errorText={errorsText.email}
                     />
                     <Input
-                        title={"Введите пароль:"}
-                        name={"password"}
+                        title="Введите пароль:"
+                        name="password"
                         handleChange={handleChange}
                         value={user.password}
                         errorText={errorsText.password}
@@ -73,10 +73,10 @@ const Login = () => {
                         <p>Нет аккаунта? Зарегистрироваться</p>
                     </Link>
                     <Button
-                        name={'Войти'}
-                        type={"submit"}
+                        name="Войти"
+                        type="submit"
                         handleOnClick={submitAction}
-                        btnClass={"btn btn-primary form-btnSubmit"}
+                        btnClass="Form-Button"
                     />
                 </form>              
             </BootstrapContainer>

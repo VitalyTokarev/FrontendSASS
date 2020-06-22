@@ -1,0 +1,13 @@
+.List {
+  padding: 0 0 0 1rem;
+  font-size: 1.2rem; }
+  .List-Element {
+    display: inline-block;
+    margin-right: 0.5rem;
+    width: 15rem; }
+  .List-ButtonRemove {
+    vertical-align: middle;
+    float: right; }
+  .List-ButtonEdit {
+    vertical-align: middle;
+    margin-left: 4rem; }

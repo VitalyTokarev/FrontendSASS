@@ -1,0 +1,28 @@
+.Navigation {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; 
+    background: #212529;
+    width: 100%;
+    text-align: right;
+
+    &-ButtonAdmin {
+        margin-right: auto;
+        margin-left: 1rem;
+    }
+
+    &-Text, &-Link{
+        display: inline-block;
+        color: #ffffff;
+        margin: 1rem;
+        justify-content: flex-end;
+        &:hover {
+            cursor: default;
+        }
+    }
+    
+    &-Link:hover {
+        color: grey;
+        cursor: pointer;
+    }
+}

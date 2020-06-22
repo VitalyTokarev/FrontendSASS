@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch} from 'react-redux';
 
-import BootstrapContainer from '../../components/BootstrapContainer'; 
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import BootstrapContainer from '../../components/commons/BootstrapContainer'; 
+import Input from '../../components/commons/Input';
+import Button from '../../components/commons/Button';
 import { checkEmptyAndLength,  validationEmail } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
 import { signup } from '../../store/flows'; 
@@ -58,22 +58,22 @@ const Signup = () => {
                 <form >
                     <h1 className="text-center">Регистрация</h1>
                     <Input
-                        title={'Ваше имя:'}
-                        name={"name"}
+                        title="Ваше имя:"
+                        name="name"
                         handleChange={handleChange}
                         value={user.name}
                         errorText={errorsText.name}
                     />
                     <Input
-                        title={'Ваш e-mail адрес:'}
-                        name={"email"}
+                        title="Ваш e-mail адрес:"
+                        name="email"
                         handleChange={handleChange}
                         value={user.email}
                         errorText={errorsText.email}
                     />
                     <Input
-                        title={"Введите пароль:"}
-                        name={"password"}
+                        title="Введите пароль:"
+                        name="password"
                         handleChange={handleChange}
                         value={user.password}
                         errorText={errorsText.password}
@@ -82,10 +82,10 @@ const Signup = () => {
                         <p>Уже есть аккаунт? Войти</p>
                     </Link>
                     <Button
-                        name={'Зарегистрироваться'}
-                        type={"submit"}
+                        name="Зарегистрироваться"
+                        type="submit"
                         handleOnClick={submitAction}
-                        btnClass={"btn btn-primary form-btnSubmit"}
+                        btnClass="Form-Button"
                     />
                 </form>              
             </BootstrapContainer>

@@ -1,0 +1,42 @@
+.MySelect {
+    position: relative;
+    background-color: #ffffff;
+    width: 100%;
+    outline: none;
+    &-ButtonArrow {
+        position: absolute;
+        display: block;
+        right: 1%;
+        top: 40%;
+        z-index: 2;
+        padding: 0.375rem 0.75rem;
+    
+        box-shadow: none;
+        border: none;
+        background: inherit;
+
+        &_up {
+            background-image: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_up.png");
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        &_down {
+            background-image: url("http://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/br_down.png");
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+        &:focus {
+            outline: none;
+        }
+
+        &-Input {
+            padding-right: 2rem;
+            width: inherit;
+
+            &:hover {
+                cursor: default;
+            }
+        }
+    }
+}

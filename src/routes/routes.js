@@ -2,7 +2,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import AdminPanel from '../pages/AdminPanel';
-import Autorization from '../components/Authorization';
+import Autorization from '../components/hoc/Authorization';
 
 export const routes = [
     {

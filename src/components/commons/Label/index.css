@@ -1,0 +1,7 @@
+.Label {
+  font-size: 1.2rem; }
+  .Label_error {
+    display: block;
+    margin-bottom: 1rem;
+    height: 1rem;
+    color: red; }

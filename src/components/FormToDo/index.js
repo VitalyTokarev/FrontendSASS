@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, shallowEqual } from 'react-redux';
 
-import Input from '../Input';
-import Button from '../Button';
-import MySelect from '../MySelect';
-import BootstrapContainer from '../BootstrapContainer';
+import Input from '../commons/Input';
+import Button from '../commons/Button';
+import MySelect from '../commons/MySelect';
+import BootstrapContainer from '../commons/BootstrapContainer';
 import { checkEmptyAndLength } from '../../helpers/validation';
 import { useFieldsState } from '../../hooks';
 import { INITIAL_TITLE_DATA } from '../../helpers/constants';
@@ -130,7 +130,7 @@ const FormToDo = ( {editObject, getData} ) => {
                 name={titleData.nameSubmitBtn}
                 type="submit"
                 handleOnClick={submitAction}
-                btnClass="btn btn-primary form-btnSubmit"
+                btnClass="Form-Button"
             />
         </form>
     </BootstrapContainer>

@@ -1,0 +1,10 @@
+.Input {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  outline-color: #007bff; }
+  .Input_error {
+    border: 0.1rem solid red; }

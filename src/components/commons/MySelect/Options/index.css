@@ -1,0 +1,14 @@
+.Options {
+  position: absolute;
+  z-index: 3;
+  border: 1px solid #ced4da;
+  background-color: #ffffff; }
+  .Options-Option {
+    margin: 0;
+    padding: 0.1rem 1rem;
+    width: 100%; }
+    .Options-Option:hover {
+      cursor: default;
+      background-color: #ced4da; }
+    .Options-Option:focus {
+      background-color: #000000; }
